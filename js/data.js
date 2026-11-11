@@ -3,9 +3,11 @@
   要改連結、人名、主業、照片，只改這個檔案就好，不用動 index.html 或 app.js。
 
   照片：放在 assets/img/，photo 填檔名路徑；留空字串 "" 會顯示「照片待提供」佔位。
-  theme：卡片背景風格代號（暫定，風格還在跟使用者討論）。目前草稿用 "snr"、"mono"、"chameleon"、"neon"。
+  theme：卡片背景風格（已定案）。"snr" 暗紅交易室、"mono" 冷調黑灰白光、"jungle" 叢林霓虹變色龍、"night" 紫金夜景。
+         樣式在 css/style.css 的 .theme-xxx，背景圖樣和互動在 js/app.js 的 THEMES。
+  role：主業，空字串＝不顯示（沒查證的不要寫）。handle：顯示在名字下的帳號。
+  verified：false 只是給維護的人看的註記，頁面不會顯示。
   themeBrief：使用者對這個人背景風格的方向，給之後做設計的人參考。
-  verified：false 代表主業還沒查證，卡片會顯示「主業未驗證」。
 */
 window.OX_DATA = {
   brand: {
@@ -25,7 +27,7 @@ window.OX_DATA = {
   // LINE 官方帳號（最大、最明顯的一格）
   lineOfficial: {
     title: "LINE 官方帳號",
-    desc: "加入官方帳號，免費教材直接傳給你",
+    desc: "加入好友，免費教材直接傳給你",
     button: "LINE 點擊領取免費教材",
     url: "https://lin.ee/TAWUaY2"
   },
@@ -51,13 +53,14 @@ window.OX_DATA = {
       id: "sheng",
       name: "阿聖聊交易",
       role: "加密貨幣技術分析",
+      handle: "@shengtrader_snr",
       tags: ["ICT", "SNR 支撐壓力", "BTC"],
       verified: true,
       source: "YouTube 頻道簡介：【加密貨幣|技術分析|區塊鏈】ICT SNR TRADER",
       photo: "assets/img/avatars/sheng.png",
       photoNote: "暫用 YouTube 頻道大頭貼；使用者的 App 截圖到了要換（tools/crop_circle.py 預設 detect 模式）",
       theme: "snr",
-      themeBrief: "暗紅／黑的交易員風",
+      themeBrief: "暗紅交易室；滑過或碰到時 K 線一根根長出來，雜誌封面般的光影打在頭像和卡片上",
       links: {
         yt: "https://www.youtube.com/@shengtrader_snr",
         ig: "https://www.instagram.com/ox.trading.tw",
@@ -68,13 +71,14 @@ window.OX_DATA = {
       id: "cheng",
       name: "老承",
       role: "台股解盤與產業分析",
+      handle: "@Cryptocheng",
       tags: ["台股", "產業分析", "BTC"],
       verified: true,
       source: "YouTube 頻道名稱「老承 產業分析 BTC交易分析」與簡介「分享台北股市的每日分析解盤」",
       photo: "assets/img/avatars/cheng.png",
       photoNote: "暫用 YouTube 頻道大頭貼；使用者的 App 截圖（黑 polo、雙手交叉側臉）到了要換",
       theme: "mono",
-      themeBrief: "冷調黑灰，加一道細白光",
+      themeBrief: "冷調黑灰；手指碰到時一道白光掃過整張卡",
       links: {
         yt: "https://www.youtube.com/@Cryptocheng",
         ig: "https://www.instagram.com/cryptocheng_",
@@ -84,15 +88,16 @@ window.OX_DATA = {
     {
       id: "chameleon",
       name: "交易變色龍",
-      role: "未驗證",
-      tags: ["Kampbell Cheng"],
+      role: "",            // 主業未驗證，頁面上不寫主業
+      handle: "@kampbel1",
+      tags: [],
       verified: false,
       source: "YouTube 頻道（Kampbell Cheng）沒有簡介也沒有影片，主業待本人提供",
       photo: "assets/img/avatars/chameleon.png",
       photoCutout: "assets/img/avatars/chameleon_cutout.png",
       photoNote: "Threads @kampbel1 大頭貼去白底，跟使用者描述的圖相同（變色龍抱比特幣）",
-      theme: "chameleon",
-      themeBrief: "青綠鱗片配金幣光，加密幣感",
+      theme: "jungle",
+      themeBrief: "叢林霓虹底，藤蔓和光點流動，青綠鱗片慢慢變色；點下去金幣閃一下、鱗片換色",
       links: {
         yt: "https://www.youtube.com/@heejun0330",
         ig: "https://www.instagram.com/heejun0330/",
@@ -102,14 +107,15 @@ window.OX_DATA = {
     {
       id: "lucas",
       name: "Lucas",
-      role: "加密貨幣",
-      tags: ["Crypto"],
+      role: "",            // 主業未驗證，頁面上不寫主業
+      handle: "@gorani.___",
+      tags: [],
       verified: false,
       source: "沒有 YouTube；只從 Threads 顯示名稱 Crypto_Lucas 推測，未驗證",
       photo: "assets/img/avatars/lucas.png",
       photoNote: "暫用 Threads @gorani.___ 大頭貼；使用者傳的夜景照到了要換",
-      theme: "neon",
-      themeBrief: "時尚夜景，紫金光暈（照片是澳門巴黎人鐵塔夜景）",
+      theme: "night",
+      themeBrief: "紫金夜景；散景光點飄動，建築燈光一格一格亮起（照片是澳門巴黎人鐵塔夜景）",
       links: {
         ig: "https://www.instagram.com/gorani.___",
         threads: "https://www.threads.com/@gorani.___"
