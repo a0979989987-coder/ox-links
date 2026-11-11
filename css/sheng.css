@@ -1,21 +1,10 @@
 /* 阿聖聊交易：金融雜誌封面＋交易終端。硬邊、細格線、紅黑高對比，沒有毛玻璃、沒有圓角。 */
 .p-sheng { --red: #ff2d20; --red2: #b3120a; --ink: #070202; --bone: #f4ede4; --mute: rgba(244, 237, 228, .6); --grid: rgba(255, 45, 32, .14);
-  --i-bg: #070202; --i-hi: #ffe1d8; --i-mid: #ff2d20; --i-lo: #6a0904; --i-glow: rgba(255, 45, 32, .9); --i-rad: 0;
+ 
   background: var(--ink); color: var(--bone); font-family: "Noto Sans TC", sans-serif; }
-.p-sheng .i-word { font: 900 30px/1 "Noto Serif TC", serif; letter-spacing: 6px; }
-/* 開場炸開：紅色硬邊快門往上下打開 */
-.p-sheng .i-burst { border-radius: 0; width: 100vw; height: 6px; margin: -3px 0 0 -50vw; background: var(--red); box-shadow: 0 0 40px var(--red); animation: shShutter .7s cubic-bezier(.7, 0, .2, 1) .95s forwards; }
 @keyframes shShutter { 0% { opacity: 1; transform: scaleY(1); } 100% { opacity: 1; transform: scaleY(300); } }
-.p-sheng #intro.done { transition: opacity .35s ease; }
 
 #chart { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
-.sh-light { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden;
-  background: radial-gradient(45vmax 35vmax at var(--lx, 30%) var(--ly, 18%), rgba(255, 236, 220, .16), transparent 70%); mix-blend-mode: screen; }
-.sh-light::after { content: ""; position: absolute; top: -50%; bottom: -50%; left: 0; width: 40%; opacity: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 236, 220, .28) 45%, rgba(255, 250, 240, .5) 50%, rgba(255, 236, 220, .28) 55%, transparent);
-  transform: translateX(-130%) rotate(14deg); }
-.p-sheng.flash .sh-light::after { animation: shBeam 1.5s cubic-bezier(.45, .05, .55, .95) forwards; }
-@keyframes shBeam { 0% { opacity: 1; } 100% { opacity: 1; transform: translateX(260%) rotate(14deg); } }
 
 .sh { position: relative; z-index: 2; max-width: 520px; margin: 0 auto; }
 .sh-mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
@@ -33,7 +22,6 @@
 .sh-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid var(--red); background: #1a0402; }
 .sh-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.25) brightness(.95); transform: scale(1.04); }
 .sh-photo::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(255, 45, 32, .0), rgba(255, 45, 32, .55)); mix-blend-mode: multiply; }
-.sh-photo::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(60% 50% at var(--px, 30%) var(--py, 20%), rgba(255, 240, 225, .45), transparent 65%); mix-blend-mode: soft-light; }
 .sh-photo .cap { position: absolute; z-index: 3; left: 0; bottom: 0; padding: 5px 8px; font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; background: var(--red); color: var(--ink); }
 .sh-lines { display: grid; gap: 14px; padding-bottom: 4px; }
 .sh-lines div { border-top: 1px solid var(--grid); padding-top: 8px; }
@@ -78,8 +66,6 @@
 .sh-ticket .go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; height: 58px; padding: 0 16px;
   background: #06C755; color: #021b0b; font: 900 18px/1 "Noto Sans TC", sans-serif; letter-spacing: 1px; }
 .sh-ticket .go svg { width: 22px; height: 22px; }
-.sh-ticket .go::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-100%); animation: shSweep 2.4s ease-in-out infinite; }
-@keyframes shSweep { 60%, 100% { transform: translateX(100%); } }
 .sh-cursor { display: inline-block; width: 9px; height: 16px; background: #59f19a; vertical-align: -2px; animation: shBlink 1s steps(1) infinite; }
 @keyframes shBlink { 50% { opacity: 0; } }
 .sh-room { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 14px; border: 1px solid #06C755; background: rgba(4, 20, 10, .8); position: relative; overflow: hidden; }
@@ -109,12 +95,12 @@
 .sh-term { border: 1px solid var(--red); background: rgba(7, 2, 2, .78); font-family: "JetBrains Mono", monospace; }
 .sh-term .bar { display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--grid); font-size: 10px; color: var(--mute); letter-spacing: 2px; }
 .sh-term .bar i { width: 8px; height: 8px; background: var(--red); }
-.sh-term a { display: grid; grid-template-columns: 18px 26px 1fr auto; align-items: center; gap: 8px; height: 62px; padding: 0 12px; border-bottom: 1px solid var(--grid); transition: background .12s, color .12s; }
+.sh-term a { display: grid; grid-template-columns: 14px 26px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; row-gap: 4px; align-items: center; min-height: 66px; padding: 10px 12px; border-bottom: 1px solid var(--grid); transition: background .12s, color .12s; }
 .sh-term a:last-child { border-bottom: 0; }
-.sh-term a::before { content: ">"; color: var(--red); font-weight: 700; }
-.sh-term svg { width: 24px; height: 24px; color: var(--red); }
-.sh-term b { font: 700 18px/1 "Noto Sans TC", sans-serif; }
-.sh-term small { font-size: 10px; color: var(--mute); }
+.sh-term a::before { content: ">"; grid-row: 1 / 3; color: var(--red); font-weight: 700; }
+.sh-term svg { grid-row: 1 / 3; width: 24px; height: 24px; color: var(--red); }
+.sh-term b { grid-column: 3; font: 700 18px/1.2 "Noto Sans TC", sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sh-term small { grid-column: 3; min-width: 0; font-size: 10px; line-height: 1.3; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sh-term a:hover, .sh-term a:active { background: var(--red); color: var(--ink); }
 .sh-term a:hover svg, .sh-term a:active svg, .sh-term a:hover::before, .sh-term a:active::before { color: var(--ink); }
 .sh-foot { padding: 20px 16px calc(30px + env(safe-area-inset-bottom)); font: 500 10px/1.6 "JetBrains Mono", monospace; color: var(--mute); letter-spacing: 1px; border-top: 1px solid var(--grid); }
@@ -131,10 +117,27 @@
 .sh-dock a { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 14px; background: #06C755; color: #021b0b; font: 900 16px/1 "Noto Sans TC", sans-serif; }
 .sh-dock a small { font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; }
 .sh-dock svg { width: 20px; height: 20px; }
-/* LINE 官方移到首屏：封面縮小，下單單接在社群按鈕下面 */
-.sh-mast { font-size: 46px; }
-.sh-photo { aspect-ratio: 1 / 1; }
-.sh-name { font-size: 76px; margin-top: -34px; }
-.sh-soc { margin-top: 10px; }
+/* 首屏：小封面＋名字一排，下面直接是 LINE 官方下單單和 LINE 社群；社群按鈕移到跑馬燈下面 */
+.sh-mast { font-size: 42px; line-height: .95; white-space: nowrap; }
+.sh-mast small { margin-top: 6px; }
+.sh-rule { margin: 10px 0 12px; }
+.sh-id { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 14px; align-items: end; }
+.sh-photo { aspect-ratio: 4 / 5; }
+.sh-photo .cap { font-size: 8px; padding: 3px 5px; }
+.sh-name { margin-top: 0; font-size: 50px; line-height: 1; letter-spacing: -1px; }
+.sh-name span { font-size: 22px; margin-left: 4px; }
+.sh-meta { margin-top: 8px; gap: 8px; }
+.sh-role { font-size: 11px; padding: 6px 8px; letter-spacing: 2px; }
+.sh-lines { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; padding: 0; }
+.sh-lines span { border: 1px solid var(--grid); padding: 4px 6px; font: 700 11px/1 "Noto Sans TC", sans-serif; white-space: nowrap; }
+.sh-lines small { display: inline; margin-right: 4px; font: 500 9px/1 "JetBrains Mono", monospace; color: var(--red); }
 .sh-first { margin-top: 14px; }
-.sh-first h3 { margin-top: 8px; font-size: 34px; }
+.sh-first .in { padding: 10px 12px 12px; }
+.sh-first h3 { margin: 6px 0 2px; font-size: 28px; }
+.sh-first p { font-size: 12px; line-height: 1.5; }
+.sh-first .go { margin-top: 10px; height: 50px; font-size: 16px; }
+.sh-cover .sh-room { margin-top: 10px; }
+.sh-soc { margin-top: 0; }
+.sh-soc a { flex: 1; justify-content: center; height: 46px; padding: 0 6px; font-size: 11px; }
+.sh-cover { min-height: 0; display: block; padding: 10px 16px 18px; }
+.sh-cover .sh-room { padding: 10px 12px; }

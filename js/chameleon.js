@@ -1,9 +1,9 @@
 /* 交易變色龍：叢林霓虹遊戲感。
    背景：WebGL 流動霓虹＋鱗片，整頁主色（--h）會慢慢變色；往下捲藤蔓會長出來、主色也跟著轉。
-   互動：點一下畫面，金幣從手指位置噴出（2D canvas 物理），金光一閃，鱗片換色，右上角金幣數 +1，還有投幣聲。
+   互動：點一下畫面，金幣從手指位置噴出（每次 10 枚、最多 30 枚，2D canvas 物理），金光一閃，鱗片換色，右上角金幣數 +1，還有投幣聲。
    變色龍會轉頭看手指／游標。 */
 (function () {
-  const { P, esc, asset, icon, socials, SND, reveal, intro, finalize, toolbar, reduce, D } = OX;
+  const { P, esc, asset, icon, socials, SND, reveal, finalize, toolbar, reduce, D } = OX;
   const B = document.body, app = document.getElementById("app");
   const chest = `<svg class="box" viewBox="0 0 72 64" aria-hidden="true"><path d="M6 26h60v32a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4Z" fill="#8a4b12" stroke="#04110e" stroke-width="3"/>
     <path d="M6 26c0-12 10-20 30-20s30 8 30 20Z" fill="#b8651a" stroke="#04110e" stroke-width="3"/><path d="M6 26h60v8H6Z" fill="#ffcc33" stroke="#04110e" stroke-width="3"/>
@@ -22,17 +22,21 @@
   <div class="jg">
     <section class="jg-hero">
       <div class="jg-pet rv"><img src="${esc(asset(P.cover || P.photo))}" alt="${esc(P.name)}"></div>
-      <h1 class="jg-name rv" data-d=".1">${esc(P.name)}</h1>
-      ${P.alias ? `<span class="jg-alias rv" data-d=".18">${esc(P.alias)}</span>` : ""}
-      <p class="jg-handle rv" data-d=".22">${esc(P.handle)}</p>
-      <nav class="jg-soc rv" data-d=".28">${socials(P).map(s => `<a class="${s.k}" href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}</a>`).join("")}</nav>
+      <div class="jg-idt">
+        <h1 class="jg-name rv">${esc(P.name)}</h1>
+        ${P.alias ? `<span class="jg-alias rv">${esc(P.alias)}</span>` : ""}
+        <p class="jg-handle rv">${esc(P.handle)}</p>
+      </div>
     </section>
 
     <h2 class="jg-h rv">免費寶箱</h2>
-    <a class="jg-chest rv" href="${esc(D.lineOfficial.url)}"><div class="in">
+    <a data-line="official" class="jg-chest rv" href="${esc(D.lineOfficial.url)}"><div class="in">
       <div class="top">${chest}<span><b>免費教材</b><small>${esc(D.lineOfficial.desc)}</small></span></div>
       <span class="go">${esc(D.lineOfficial.button)}${icon("arrow")}</span></div></a>
-    <a class="jg-bubble rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群 · 多人連線</small></span><em>加入</em></a>
+    <a data-line="community" class="jg-bubble rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群 · 多人連線</small></span><em>加入</em></a>
+
+    <h2 class="jg-h rv">追蹤我</h2>
+    <nav class="jg-soc rv">${socials(P).map(s => `<a class="${s.k}" href="${esc(s.url)}" aria-label="${s.label}"><span>${icon(s.k)}</span><b>${s.k === "yt" ? "YouTube" : s.label}</b></a>`).join("")}</nav>
 
     <h2 class="jg-h rv">名片</h2>
     <div class="jg-stickers">
@@ -46,11 +50,11 @@
     <p class="jg-foot">© 2026 ${esc(P.name)} · OX.Trading</p>
   </div>
   <div class="jg-dock"><a href="${esc(D.lineOfficial.url)}"><span>${icon("line")}</span>${esc(D.lineOfficial.button)}</a></div>`;
-  toolbar(); finalize(); reveal(); OX.dock(".jg-dock", ".jg-chest");
+  toolbar(); finalize(); reveal(); OX.dock(".jg-dock");
 
   /* ---------- 主色 ---------- */
   let hue = 168, hueTarget = 168, flash = 0, lastCss = 0;
-  const setCss = t => { if (t - lastCss > 90) { lastCss = t; B.style.setProperty("--h", hue.toFixed(1)); } };
+  let lastH = -999; const setCss = t => { if (t - lastCss > 250 && Math.abs(hue - lastH) > 3) { lastCss = t; lastH = hue; B.style.setProperty("--h", hue.toFixed(0)); } };
 
   /* ---------- WebGL 叢林霓虹 ---------- */
   const cv = document.getElementById("jungle");
@@ -87,27 +91,34 @@
   }
   if (!draw) { cv.remove(); app.insertAdjacentHTML("afterbegin", '<div class="jg-fallback" aria-hidden="true"></div>'); }
 
-  /* ---------- 金幣 ---------- */
-  const cc = document.getElementById("coins"), cg = cc.getContext("2d"); let coins = [];
-  const csize = () => { const d = Math.min(devicePixelRatio || 1, 2); cc.width = innerWidth * d; cc.height = innerHeight * d; cg.setTransform(d, 0, 0, d, 0, 0); };
+  /* ---------- 金幣：每次點 10 枚、畫面上最多 30 枚，先畫好一張金幣圖再貼（不每格畫字），物件重複使用 ---------- */
+  const cc = document.getElementById("coins"), cg = cc.getContext("2d");
+  const MAX = 30, PER = 10, pool = Array.from({ length: MAX }, () => ({ life: 0 }));
+  let K = 1; const csize = () => { const d = K = Math.min(devicePixelRatio || 1, 1.5); cc.width = innerWidth * d; cc.height = innerHeight * d; cg.setTransform(d, 0, 0, d, 0, 0); };
   csize(); addEventListener("resize", csize);
+  const sprite = (() => { const s = document.createElement("canvas"), R = 24; s.width = s.height = R * 2 + 4; const x = s.getContext("2d");
+    x.fillStyle = "#c98a00"; x.beginPath(); x.arc(R + 2, R + 4, R, 0, 7); x.fill(); x.fillStyle = "#ffcc33"; x.beginPath(); x.arc(R + 2, R + 2, R, 0, 7); x.fill();
+    x.fillStyle = "#7a4d00"; x.font = `700 ${R}px sans-serif`; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText("₿", R + 2, R + 3); return s; })();
+  let live = 0;
   function drawCoins() {
-    cg.clearRect(0, 0, innerWidth, innerHeight);
-    coins = coins.filter(c => c.life > 0);
-    for (const c of coins) {
+    cg.clearRect(0, 0, innerWidth, innerHeight); live = 0;
+    for (const c of pool) {
+      if (c.life <= 0) continue; live++;
       c.vy += .45; c.x += c.vx; c.y += c.vy; c.a += c.va; c.life -= 1;
-      const w = Math.abs(Math.cos(c.a)) * c.r;
+      const sx = Math.max(.08, Math.abs(Math.cos(c.a))), d = c.r * 2;
       cg.globalAlpha = Math.min(1, c.life / 20);
-      cg.fillStyle = "#c98a00"; cg.beginPath(); cg.ellipse(c.x, c.y + 2, w, c.r, 0, 0, 7); cg.fill();
-      cg.fillStyle = "#ffcc33"; cg.beginPath(); cg.ellipse(c.x, c.y, w, c.r, 0, 0, 7); cg.fill();
-      if (w > c.r * .5) { cg.fillStyle = "#7a4d00"; cg.font = `700 ${c.r}px sans-serif`; cg.textAlign = "center"; cg.textBaseline = "middle"; cg.fillText("₿", c.x, c.y + 1); }
+      cg.setTransform(K * sx, 0, 0, K, c.x * K, c.y * K); cg.drawImage(sprite, -c.r, -c.r, d, d);
     }
-    cg.globalAlpha = 1;
+    cg.setTransform(K, 0, 0, K, 0, 0); cg.globalAlpha = 1;
   }
-  let count = 0; const cnt = document.getElementById("cnt"), hud = document.querySelector(".jg-hud");
+  let count = 0, lastBurst = 0; const cnt = document.getElementById("cnt"), hud = document.querySelector(".jg-hud");
+  const fl = document.createElement("i"); fl.className = "jg-flash"; fl.style.display = "none"; document.body.appendChild(fl);
   function burst(x, y) {
-    for (let i = 0; i < 14; i++) coins.push({ x, y, vx: (Math.random() - .5) * 9, vy: -6 - Math.random() * 8, r: 9 + Math.random() * 6, a: Math.random() * 6, va: .15 + Math.random() * .2, life: 70 + Math.random() * 30 });
-    const f = document.createElement("i"); f.className = "jg-flash"; f.style.left = x + "px"; f.style.top = y + "px"; document.body.appendChild(f); setTimeout(() => f.remove(), 720);
+    const now = performance.now(); if (now - lastBurst < 140) return; lastBurst = now;
+    // 先用掉已經結束的，沒有就覆蓋最快結束的那幾枚
+    const order = pool.slice().sort((p, q) => p.life - q.life);
+    for (let i = 0; i < PER; i++) Object.assign(order[i], { x, y, vx: (Math.random() - .5) * 8, vy: -6 - Math.random() * 7, r: 9 + Math.random() * 5, a: Math.random() * 6, va: .15 + Math.random() * .2, life: 60 + Math.random() * 25 });
+    fl.style.display = "none"; fl.style.left = x + "px"; fl.style.top = y + "px"; void fl.offsetWidth; fl.style.display = "";
     count++; cnt.textContent = count; hud.classList.remove("bump"); void hud.offsetWidth; hud.classList.add("bump");
     flash = 1; hueTarget += 55 + Math.random() * 40;
     SND.tone(988, .08, "square", .07); setTimeout(() => SND.tone(1319, .3, "square", .07), 70);
@@ -121,8 +132,8 @@
     if (t - lastT < 24) return; lastT = t;
     auto += .02; hue += (hueTarget + auto - hue) * .06; flash *= .9;
     if (draw) draw(t);
-    if (coins.length) drawCoins(); else if (cc._had) { cg.clearRect(0, 0, innerWidth, innerHeight); }
-    cc._had = coins.length > 0;
+    if (live || pool.some(c => c.life > 0)) drawCoins(); else if (cc._had) { cg.clearRect(0, 0, innerWidth, innerHeight); }
+    cc._had = live > 0;
     setCss(t);
   }
   if (!reduce) requestAnimationFrame(loop); else if (draw) draw(0);
@@ -140,7 +151,6 @@
   /* ---------- 變色龍看手指 ---------- */
   const pet = document.querySelector(".jg-pet img");
   addEventListener("pointermove", OX.raf(e => { const r = pet.getBoundingClientRect(); const dx = e.clientX - (r.left + r.width / 2); pet.style.setProperty("--rot", Math.max(-14, Math.min(14, dx / 14)) + "deg"); }), { passive: true });
-  addEventListener("pointerdown", e => { if (B.classList.contains("intro-on") || reduce) return; burst(e.clientX, e.clientY); }, { passive: true });
+  addEventListener("pointerdown", e => { if (reduce) return; burst(e.clientX, e.clientY); }, { passive: true });
 
-  intro("交易變色龍", () => { if (!reduce) setTimeout(() => { const r = pet.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2); count = 0; cnt.textContent = "0"; }, 400); });
 })();

@@ -2,58 +2,75 @@
    互動：手指或游標移動時金屬名牌的反光角度跟著轉；碰一下畫面，一道白光用 3 秒慢慢掃過整頁（並有一聲清脆的鈴）。
    捲動：每一章的細線從左畫到右，章節進場時白光自動掃過一次。 */
 (function () {
-  const { P, esc, asset, icon, socials, SND, reveal, intro, finalize, toolbar, reduce, videos, fetchedAt, D } = OX;
+  const { P, esc, asset, icon, socials, SND, reveal, finalize, toolbar, reduce, videos, fetchedAt, D } = OX;
   const B = document.body, app = document.getElementById("app"), vids = videos("cheng");
   const [feat, ...rest] = vids;
   let n = 0; const no = () => String(++n).padStart(2, "0");
+  // 單色線條小圖示（只給老承頁用）
+  const IC = {
+    chart: '<path d="M3 20h18M5 16l4-5 3 3 6-8" /><circle cx="18" cy="6" r="1.2"/>',
+    book: '<path d="M4 5.5C6.5 4 9.5 4 12 5.5v14C9.5 18 6.5 18 4 19.5zM20 5.5C17.5 4 14.5 4 12 5.5v14c2.5-1.5 5.5-1.5 8 0z"/>',
+    shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    play: '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="M10 9.5v5l4.5-2.5z"/>'
+  };
+  const ic = k => `<svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k]}</svg>`;
+  const aboutIc = ["chart", "book", "shield"];
+  const terms = ["台股解盤", "產業分析", "OB 訂單塊", "FVG", "高業法規", "技術分析", "多空結構", "籌碼", "支撐壓力", "每日盤勢"];
+  const sec = (en, zh) => `<div class="ch-no rv"><b>${no()}</b><span>${en}</span><i class="ch-dia"></i><em>${zh}</em></div><div class="ch-hair rv"></div>`;
   app.innerHTML = `
   <div class="ch-tex" aria-hidden="true"></div><canvas id="field" aria-hidden="true"></canvas><div class="ch-sheen" aria-hidden="true"></div>
   <div class="ch">
-    <header class="ch-head rv"><span>Research Note</span><span>老承</span></header>
-    <div class="ch-hair rv"></div>
-    <section class="ch-plate rv" data-d=".1">
-      <i class="ch-glint g1"></i><i class="ch-glint g2"></i><i class="ch-edge"></i><div class="ch-bezel"><img src="${esc(asset(P.cover || P.photo))}" alt="${esc(P.name)}"></div>
-      <h1 class="ch-name">${esc(P.name)}</h1>
-      <p class="ch-handle">${esc(P.handle)}</p>
+    <header class="ch-head rv"><span>Research Note</span><span class="v">Vol. 2026</span></header>
+
+    <section class="ch-plate rv">
+      <i class="ch-glint g1"></i><i class="ch-glint g2"></i><i class="ch-edge"></i>
+      <div class="ch-bezel"><img src="${esc(asset(P.cover || P.photo))}" alt="${esc(P.name)}"><span>COVER</span></div>
+      <div class="ch-ttl">
+        <small class="ch-kick">Taiwan Equity Research</small>
+        <h1 class="ch-name">${esc(P.name)}</h1>
+        <p class="ch-handle">${esc(P.handle)}</p>
+        ${P.role ? `<span class="ch-role">${esc(P.role)}</span>` : ""}
+      </div>
       ${P.motto ? `<p class="ch-motto">「${esc(P.motto)}」</p>` : ""}
-      ${P.role ? `<span class="ch-role">${esc(P.role)}</span>` : ""}
-      <nav class="ch-soc">${socials(P).map(s => `<a href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}</a>`).join("")}</nav>
     </section>
 
-    <section class="ch-sec ch-first">
-      <div class="ch-no rv"><b>${no()}</b><span>Invitation</span><em>加入</em></div>
-      <div class="ch-hair rv"></div>
-      <a class="ch-invite rv" href="${esc(D.lineOfficial.url)}"><div class="in"><i class="ch-glint g3"></i>
-        ${icon("line", "lg")}<small style="display:block;margin-top:12px">LINE OFFICIAL</small>
-        <h3>免費教材</h3><p>${esc(D.lineOfficial.desc)}</p>
-        <span class="go">${esc(D.lineOfficial.button)}${icon("arrow")}</span></div></a>
-      <a class="ch-row rv" href="${esc(D.lineCommunity.url)}">${icon("chat", "ico")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE COMMUNITY</small></span>${icon("arrow")}</a>
+    <a data-line="official" class="ch-invite rv" href="${esc(D.lineOfficial.url)}"><div class="in"><i class="ch-glint g3"></i>
+      <div class="top">${icon("line", "lg")}<small>LINE OFFICIAL · INVITATION</small></div>
+      <h3>免費教材</h3><p>${esc(D.lineOfficial.desc)}</p>
+      <span class="go">${esc(D.lineOfficial.button)}${icon("arrow")}</span></div></a>
+    <a data-line="community" class="ch-row ch-comm rv" href="${esc(D.lineCommunity.url)}">${icon("chat", "ico")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE COMMUNITY</small></span>${icon("arrow")}</a>
+  </div>
+
+  <div class="ch-tick" aria-hidden="true"><div>${[...terms, ...terms].map(t => `<span>${t}</span><i>◆</i>`).join("")}</div></div>
+
+  <div class="ch">
+    <section class="ch-sec">
+      ${sec("Channels", "追蹤老承")}
+      <div class="ch-soc">${socials(P).map(s => `<a class="ch-card rv" href="${esc(s.url)}">${icon(s.k)}<b>${s.k === "yt" ? "YouTube" : s.label}</b><small>${esc(P.handle)}</small></a>`).join("")}</div>
     </section>
 
     ${P.about && P.about.length ? `<section class="ch-sec">
-      <div class="ch-no rv"><b>${no()}</b><span>Profile</span><em>簡介</em></div>
-      <div class="ch-hair rv"></div>
-      ${P.about.map(t => `<p class="ch-p rv">${esc(t)}</p>`).join("")}
+      ${sec("Profile", "簡介")}
+      <div class="ch-points">${P.about.map((t, i) => `<div class="ch-pt rv">${ic(aboutIc[i] || "chart")}<span class="k">${String(i + 1).padStart(2, "0")}</span><p>${esc(t)}</p></div>`).join("")}</div>
       <span class="ch-src rv">Source: ${esc(P.aboutSource || "")}</span>
     </section>` : ""}
 
     ${feat ? `<section class="ch-sec">
-      <div class="ch-no rv"><b>${no()}</b><span>Latest</span><em>最新影片</em></div>
-      <div class="ch-hair rv"></div>
-      <a class="ch-feat rv" href="${esc(feat.url)}"><div class="img"><img src="${esc(asset(feat.thumb))}" alt="" loading="lazy"></div><small>${esc(feat.date)}</small><b>${esc(feat.display || feat.title)}</b></a>
-      <div class="ch-tbl">${rest.map(v => `<a class="rv" href="${esc(v.url)}"><span class="d">${esc(v.date.replace(/-/g, "."))}</span><b>${esc(v.display || v.title)}</b>${v.thumb ? `<img src="${esc(asset(v.thumb))}" alt="" loading="lazy">` : "<span></span>"}</a>`).join("")}</div>
+      ${sec("Latest", "最新影片")}
+      <a class="ch-feat ch-card rv" href="${esc(feat.url)}"><div class="img"><img src="${esc(asset(feat.thumb))}" alt="" loading="lazy">${ic("play")}</div>
+        <div class="cap"><small>${esc(feat.date.replace(/-/g, "."))} · FEATURED</small><b>${esc(feat.display || feat.title)}</b></div></a>
+      <div class="ch-grid">${rest.slice(0, 4).map(v => `<a class="ch-card ch-vid rv" href="${esc(v.url)}">${v.thumb ? `<div class="img"><img src="${esc(asset(v.thumb))}" alt="" loading="lazy"></div>` : ""}<small>${esc(v.date.replace(/-/g, "."))}</small><b>${esc(v.display || v.title)}</b></a>`).join("")}</div>
       <span class="ch-src rv">Source: YouTube 頻道公開 RSS · ${esc(fetchedAt || "")}</span>
     </section>` : ""}
 
     <section class="ch-sec">
-      <div class="ch-no rv"><b>${no()}</b><span>Instruments</span><em>OX 工具</em></div>
-      <div class="ch-hair rv"></div>
-      ${D.tools.map((t, i) => `<a class="ch-row rv" href="${esc(t.url)}"><span class="k">${"ABC"[i]}</span><span><b>${esc(t.label)}</b><small>${esc(t.url.replace(/^https?:\/\//, ""))}</small></span>${icon("arrow")}</a>`).join("")}
+      ${sec("Instruments", "OX 工具")}
+      <div class="ch-tools">${D.tools.map((t, i) => `<a class="ch-card ch-tool rv" href="${esc(t.url)}"><span class="k">${"ABC"[i]}</span>${icon(t.icon)}<span class="t"><b>${esc(t.label)}</b><small>${esc(t.url.replace(/^https?:\/\//, ""))}</small></span>${icon("arrow")}</a>`).join("")}</div>
     </section>
     <footer class="ch-foot rv"><b>${esc(P.motto || P.name)}</b>© 2026 ${esc(P.name)} · OX.Trading<br>影片內容為個人觀點分享，不構成投資建議。</footer>
   </div>
   <div class="ch-dock"><a href="${esc(D.lineOfficial.url)}"><i></i>${esc(D.lineOfficial.button)}${icon("arrow")}</a></div>`;
-  toolbar(); finalize(); reveal(); OX.dock(".ch-dock", ".ch-invite");
+  toolbar(); finalize(); reveal(); OX.dock(".ch-dock");
 
   // 白光：慢、看得到；同一時間只跑一道
   let busy = false;
@@ -67,10 +84,10 @@
   const plate = document.querySelector(".ch-plate"), bez = document.querySelector(".ch-bezel");
   const tilt = OX.raf(e => {
     const x = e.clientX / innerWidth, y = e.clientY / innerHeight;
-    plate.style.setProperty("--ang", (95 + x * 50 + y * 10) + "deg"); bez.style.setProperty("--bz", (x * 120 - 60) + "deg");
+    plate.style.setProperty("--ang", (95 + x * 50 + y * 10) + "deg"); bez.style.setProperty("--bz2", (130 + x * 60) + "deg");
   });
   addEventListener("pointermove", tilt, { passive: true });
-  addEventListener("pointerdown", e => { if (B.classList.contains("intro-on")) return; tilt(e); sheen(true); }, { passive: true });
+  addEventListener("click", e => { tilt(e); sheen(true); });
   // 每一章進場時白光掃過一次
   document.querySelectorAll(".ch-no").forEach(el => el.addEventListener("enter", () => setTimeout(() => sheen(false), 300)));
   document.querySelectorAll(".ch-feat").forEach(el => el.addEventListener("enter", () => el.classList.add("in")));
@@ -124,5 +141,5 @@
     requestAnimationFrame(loop);
     document.addEventListener("visibilitychange", () => { run = !document.hidden; if (run) requestAnimationFrame(loop); });
   })();
-  intro("老承", () => setTimeout(() => sheen(false), 500));
+  OX.start(() => setTimeout(() => sheen(false), 500));
 })();

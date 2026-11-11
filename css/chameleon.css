@@ -1,10 +1,7 @@
 /* 交易變色龍：叢林霓虹遊戲感。有機曲線、鱗片、圓潤厚實的卡片（像遊戲按鈕，有立體底邊），整頁主色會變。沒有毛玻璃、沒有硬邊。 */
 .p-chameleon { --h: 168; --c1: hsl(var(--h) 85% 55%); --c2: hsl(calc(var(--h) + 50) 90% 60%); --c3: hsl(calc(var(--h) - 40) 80% 45%); --deep: hsl(var(--h) 70% 8%);
-  --gold: #ffcc33; --ink: #04110e; --i-bg: #03140f; --i-hi: #e6fff8; --i-mid: #35e0c2; --i-lo: #0b6e5f; --i-glow: rgba(53, 224, 194, .9); --i-rad: 14px;
+  --gold: #ffcc33; --ink: #04110e;
   background: var(--ink); color: #fff; font-family: "Fredoka", "Noto Sans TC", sans-serif; transition: --h 0s; }
-.p-chameleon .i-word { font: 700 32px/1 "Fredoka", "Noto Sans TC", sans-serif; }
-.p-chameleon .i-burst { background: radial-gradient(circle, #fff 0%, #ffe680 15%, #ffcc33 28%, #35e0c2 45%, #8cff5a 58%, transparent 72%); }
-.p-chameleon .i-sparks i { width: 14px; height: 14px; border-radius: 50%; background: #ffcc33; box-shadow: 0 0 10px #ffcc33, inset -2px -2px 0 #c98a00; }
 .p-chameleon .tb button { border-radius: 16px; background: var(--c1); color: var(--ink); box-shadow: 0 4px 0 var(--c3); transition: transform .15s, box-shadow .15s, background 1s; }
 .p-chameleon .tb button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--c3); }
 
@@ -16,7 +13,7 @@
 .jg-vines .leaf { fill: currentColor; opacity: .5; transform-box: fill-box; transform-origin: 0 50%; transform: scale(var(--leaf, 0)); transition: transform .6s cubic-bezier(.3, 1.6, .5, 1); }
 #coins { position: fixed; inset: 0; z-index: 70; width: 100%; height: 100%; pointer-events: none; }
 .jg-flash { position: fixed; z-index: 69; width: 260px; height: 260px; margin: -130px 0 0 -130px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 250, 220, 1) 0%, rgba(255, 210, 60, .8) 25%, rgba(255, 180, 0, 0) 62%); animation: jgFlash .7s cubic-bezier(.2, .8, .2, 1) forwards; }
+  background: radial-gradient(circle, rgba(255, 250, 220, 1) 0%, rgba(255, 210, 60, .8) 25%, rgba(255, 180, 0, 0) 62%); animation: jgFlash .6s cubic-bezier(.2, .8, .2, 1) forwards; will-change: transform, opacity; }
 @keyframes jgFlash { 0% { transform: scale(.2); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
 
 .jg { position: relative; z-index: 2; max-width: 460px; margin: 0 auto; padding: calc(64px + env(safe-area-inset-top)) 16px calc(110px + env(safe-area-inset-bottom)); }
@@ -105,3 +102,17 @@
 .p-chameleon .rv { transform: scale(.7) rotate(-4deg); transition: opacity .4s, transform .7s cubic-bezier(.3, 1.7, .5, 1); }
 .p-chameleon .rv.in { transform: none; }
 .p-chameleon .jg-st.rv.in { transform: rotate(var(--r, -2deg)); }
+/* 首屏：變色龍和名字並排，下面直接是寶箱（LINE 官方）和對話泡泡（LINE 社群）；社群按鈕移到下面 */
+.jg { padding-top: calc(58px + env(safe-area-inset-top)); }
+.jg-hero { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 10px; align-items: center; text-align: left; }
+.jg-pet { width: 124px; height: 124px; }
+.jg-name { margin-top: 0; font-size: 34px; -webkit-text-stroke-width: 6px; }
+.jg-alias { margin-top: 6px; font-size: 13px; padding: 5px 12px; }
+.jg-handle { margin-top: 8px; font-size: 13px; }
+.jg-hero + .jg-h { margin-top: 12px; }
+.jg-chest .in { padding-top: 14px; padding-bottom: 14px; }
+.jg-bubble { margin-top: 12px; padding: 12px 16px; }
+.jg-soc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 4px; }
+.jg-soc a { width: auto; height: auto; border-radius: 22px; padding: 12px 6px 10px; gap: 6px; }
+.jg-soc a span { display: grid; place-items: center; }
+.jg-soc a b { font: 700 13px/1 "Fredoka", "Noto Sans TC", sans-serif; color: var(--ink); }

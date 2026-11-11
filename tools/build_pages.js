@@ -42,17 +42,14 @@ ${SITE ? `<meta property="og:url" content="${esc(SITE + url)}">\n` : ""}<meta na
 ${id !== "hub" ? `<link rel="stylesheet" href="${root}css/${id}.css">` : ""}
 </head>`;
 }
-const INTRO = `<!-- 開場：K 線從底部衝上來炸開，點一下跳過 -->
-<div id="intro" aria-hidden="true"><div class="i-grid"></div><div class="i-candle"><i class="i-wick"></i><i class="i-body"></i></div>
-  <div class="i-burst"></div><div class="i-sparks"></div><div class="i-word"></div><p class="i-skip">點一下跳過</p></div>`;
 const scripts = (r, id) => `<script src="${r}js/data.js"></script>\n<script src="${r}js/videos.js"></script>\n<script src="${r}js/core.js"></script>\n<script src="${r}js/${id}.js"></script>`;
 
 for (const p of D.people) {
   fs.mkdirSync(path.join(root, p.id), { recursive: true });
   const html = `${head({ title: p.pageTitle || p.name, desc: p.ogDescription || "", image: p.photo, url: p.id + "/", theme: color[p.id] || "#0b0906", root: "../", id: p.id })}
 <!-- 這個檔案由 tools/build_pages.js 產生；內容請改 js/data.js -->
-<body class="intro-on p-${p.id}" data-person="${p.id}" data-root="../">
-${INTRO}
+<body class="p-${p.id}" data-person="${p.id}" data-root="../">
+
 <main id="app"></main>
 ${scripts("../", p.id)}
 </body>

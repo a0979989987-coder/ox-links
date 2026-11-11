@@ -1,33 +1,28 @@
 /* 阿聖聊交易：金融雜誌封面＋交易終端。
-   背景 canvas 畫一整片 K 線：開場後從底部一根根長出來，往下捲會繼續長出新的 K 線（捲動敘事），
-   手指或游標位置有十字線和支撐／壓力標籤，封面光跟著移動；點一下 K 線重長、光帶掃過、低音重擊。 */
+   背景 canvas 畫一整片 K 線：打開頁面後從底部一根根長出來，往下捲會繼續長出新的 K 線（捲動敘事），
+   手指或游標位置有十字線和支撐／壓力標籤；點一下 K 線重長、低音重擊。不做任何光影。 */
 (function () {
-  const { P, esc, asset, icon, socials, SND, reveal, intro, finalize, toolbar, reduce, videos, fetchedAt, D } = OX;
+  const { P, esc, asset, icon, socials, SND, reveal, finalize, toolbar, reduce, videos, fetchedAt, D } = OX;
   const B = document.body, app = document.getElementById("app");
   const vids = videos("sheng");
   const terms = ["SNR", "支撐", "壓力", "ICT", "ORDER BLOCK", "FVG", "流動性", "結構轉換", "假突破", "PIN BAR", "BTC", "ETH", "盈虧比", "頂分型", "底分型"];
 
   app.innerHTML = `
   <canvas id="chart" aria-hidden="true"></canvas>
-  <div class="sh-light" aria-hidden="true"></div>
   <div class="sh">
     <div class="sh-top"><span><b>●</b> SNR TERMINAL</span><span>阿聖聊交易</span></div>
     <section class="sh-cover">
-      <div>
-        <h1 class="sh-mast rv">Trading<br>Room<small>阿聖聊交易 · ICT / SNR</small></h1>
-        <div class="sh-rule rv" data-d=".15"></div>
-      </div>
-      <div>
-        <div class="sh-stage">
-          <figure class="sh-photo rv" data-d=".2"><img src="${esc(asset(P.cover || P.photo))}" alt="${esc(P.name)}"><span class="cap">COVER</span></figure>
-          <div class="sh-lines">
-            ${(P.tags || []).map((t, i) => `<div class="rv" data-d="${.3 + i * .08}"><small>COVER STORY 0${i + 1}</small><b>${esc(t)}</b></div>`).join("")}
-          </div>
+      <h1 class="sh-mast rv">Trading Room<small>阿聖聊交易 · ICT / SNR</small></h1>
+      <div class="sh-rule rv"></div>
+      <div class="sh-id">
+        <figure class="sh-photo rv"><img src="${esc(asset(P.cover || P.photo))}" alt="${esc(P.name)}"><span class="cap">COVER</span></figure>
+        <div class="sh-idt">
+          <h2 class="sh-name rv">阿聖<span>聊交易</span></h2>
+          <div class="sh-meta rv">${P.role ? `<span class="sh-role">${esc(P.role)}</span>` : ""}<span class="sh-handle">${esc(P.handle)}</span></div>
+          <div class="sh-lines rv">${(P.tags || []).map((t, i) => `<span><small>0${i + 1}</small>${esc(t)}</span>`).join("")}</div>
         </div>
-        <h2 class="sh-name rv" data-d=".35">阿聖<span>聊交易</span></h2>
-        <div class="sh-meta rv" data-d=".45">${P.role ? `<span class="sh-role">${esc(P.role)}</span>` : ""}<span class="sh-handle">${esc(P.handle)}</span></div>
-        <div class="sh-soc rv" data-d=".5">${socials(P).map(s => `<a href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}${s.k === "threads" ? "THREADS" : s.k.toUpperCase()}</a>`).join("")}</div>
-      <a class="sh-ticket sh-first rv" data-d=".55" href="${esc(D.lineOfficial.url)}">
+      </div>
+      <a data-line="official" class="sh-ticket sh-first rv" href="${esc(D.lineOfficial.url)}">
         <div class="in">
           <div class="row"><span>ORDER TICKET</span><span>FREE · 0 元</span></div>
           <h3>免費教材</h3>
@@ -35,14 +30,14 @@
           <span class="go"><span>${esc(D.lineOfficial.button)}</span>${icon("arrow")}</span>
         </div>
       </a>
-      </div>
+      <a data-line="community" class="sh-room rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群 · JOIN THE ROOM</small></span><em>加入</em></a>
     </section>
 
     <div class="sh-tick" aria-hidden="true"><div>${[...terms, ...terms].map(t => `<span>${t}</span>`).join("")}</div></div>
 
     <section class="sh-sec" data-zone="0">
-      <div class="sh-h rv"><b>Room</b><small>交易討論</small><i>LINE 社群</i></div>
-      <a class="sh-room rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群 · JOIN THE ROOM</small></span><em>加入</em></a>
+      <div class="sh-h rv"><b>Follow</b><small>追蹤阿聖</small><i>YOUTUBE · IG · THREADS</i></div>
+      <div class="sh-soc rv">${socials(P).map(s => `<a href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}${s.k === "threads" ? "THREADS" : s.k === "yt" ? "YOUTUBE" : "INSTAGRAM"}</a>`).join("")}</div>
     </section>
 
     ${P.about && P.about.length ? `<section class="sh-sec" data-zone="1">
@@ -67,7 +62,7 @@
     <footer class="sh-foot">© 2026 阿聖聊交易 · OX.Trading<br>純粹分享，不構成買賣建議。</footer>
   </div>`;
   toolbar(); finalize(); reveal();
-  OX.dock(".sh-dock", ".sh-ticket");
+  OX.dock(".sh-dock");
 
   /* ---------- 背景 K 線 ---------- */
   const cv = document.getElementById("chart"), g = cv.getContext("2d");
@@ -143,26 +138,17 @@
     redraw();
   }, { passive: true });
 
-  /* 游標／手指：十字線、封面光跟著走 */
-  const light = document.querySelector(".sh-light"), photo = document.querySelector(".sh-photo");
-  function point(e) {
-    ptr = { x: e.clientX, y: e.clientY };
-    light.style.setProperty("--lx", (e.clientX / innerWidth * 100) + "%"); light.style.setProperty("--ly", (e.clientY / innerHeight * 100) + "%");
-    const r = photo.getBoundingClientRect(); photo.style.setProperty("--px", ((e.clientX - r.left) / r.width * 100) + "%"); photo.style.setProperty("--py", ((e.clientY - r.top) / r.height * 100) + "%");
-    redraw();
-  }
+  /* 游標／手指：十字線（不做任何光影） */
+  function point(e) { ptr = { x: e.clientX, y: e.clientY }; redraw(); }
   addEventListener("pointermove", point, { passive: true });
   addEventListener("pointerdown", e => {
-    if (B.classList.contains("intro-on")) return;
     point(e);
     if (reduce) return;
     regrowT0 = performance.now(); kick();
-    B.classList.remove("flash"); void B.offsetWidth; B.classList.add("flash"); clearTimeout(B._ft); B._ft = setTimeout(() => B.classList.remove("flash"), 1600);
     SND.tone(70, .45, "sine", .5, 38); SND.noise(.12, .18, 900);
   }, { passive: true });
 
-  intro("阿聖聊交易", () => {
+  OX.start(() => {
     growT0 = performance.now(); kick();
-    if (!reduce) setTimeout(() => { B.classList.add("flash"); B._ft = setTimeout(() => B.classList.remove("flash"), 1600); }, 900);
   });
 })();

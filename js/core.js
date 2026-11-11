@@ -1,4 +1,4 @@
-/* 四頁共用工具：資料、圖示、開場、入場觀察、分享、聲音（WebAudio 合成，點過畫面才會響）。
+/* 四頁共用工具：資料、圖示、入場觀察、分享、聲音（WebAudio 合成，點過畫面才會響）。
    版型與特效在 js/<id>.js，各頁自己的 render() 會用到這裡的 OX。 */
 (function () {
   const D = window.OX_DATA, V = (window.OX_VIDEOS || { channels: {} });
@@ -68,43 +68,36 @@
   function reveal(root = document) {
     const els = root.querySelectorAll(".rv");
     if (reduce || !("IntersectionObserver" in window)) { els.forEach(e => e.classList.add("in")); return; }
+    // 第一個畫面看得到的：直接顯示，不等、不延遲（第一次繪製就看得到 LINE 兩格）
+    const vh = innerHeight; const later = [];
+    els.forEach(el => { if (el.getBoundingClientRect().top < vh) { el.classList.add("in"); requestAnimationFrame(() => el.dispatchEvent(new CustomEvent("enter"))); } else later.push(el); });
     const io = new IntersectionObserver(es => es.forEach(e => {
       if (!e.isIntersecting) return; const el = e.target;
       el.style.transitionDelay = el.style.animationDelay = (el.dataset.d || 0) + "s"; el.classList.add("in"); io.unobserve(el);
       el.dispatchEvent(new CustomEvent("enter"));
     }), { rootMargin: "0px 0px -8% 0px" });
-    els.forEach(e => io.observe(e));
+    later.forEach(e => io.observe(e));
   }
 
-  /* 開場：結束（或點一下跳過）後呼叫 done */
-  function intro(word, done) {
-    const el = document.getElementById("intro");
-    if (reduce || !el) { if (el) el.remove(); B.classList.remove("intro-on"); done(); return; }
-    el.querySelector(".i-word").textContent = word;
-    const sp = el.querySelector(".i-sparks");
-    for (let i = 0; i < 18; i++) { const s = document.createElement("i"); s.style.setProperty("--a", (i * 20 + Math.random() * 12 - 6) + "deg"); sp.appendChild(s); }
-    let ended = false;
-    const end = () => { if (ended) return; ended = true; el.classList.add("done"); B.classList.remove("intro-on"); done(); setTimeout(() => el.remove(), 550); };
-    const t = setTimeout(end, 1450);
-    el.addEventListener("pointerdown", e => { e.stopPropagation(); clearTimeout(t); end(); });
-  }
+  /* 沒有開場動畫：頁面一打開就顯示；fn 在第一個畫格之後跑（給 canvas 開始動） */
+  function start(fn) { requestAnimationFrame(() => fn && fn()); }
 
   /* 外部連結開新分頁、不能拖曳 */
   function finalize() {
     document.querySelectorAll("a[href^='http']").forEach(a => { a.target = "_blank"; a.rel = "noopener"; });
     document.querySelectorAll("a, img").forEach(el => el.setAttribute("draggable", "false"));
   }
-  /* 底部固定 LINE 條：開場後出現，主要的 LINE 官方大格露出一半以上時才收起來，只露一角時照樣顯示 */
-  function dock(sel, mainSel) {
-    const d = document.querySelector(sel), m = document.querySelector(mainSel); if (!d) return;
-    let mainIn = false, started = false;
-    const upd = () => d.classList.toggle("on", started && !mainIn);
-    if (m && "IntersectionObserver" in window) new IntersectionObserver(es => { mainIn = es[0].intersectionRatio >= .55; upd(); }, { threshold: [0, .55, 1] }).observe(m);
-    const go = () => { started = true; upd(); };
-    if (!B.classList.contains("intro-on")) setTimeout(go, 600); else new MutationObserver((_, o) => { if (!B.classList.contains("intro-on")) { o.disconnect(); setTimeout(go, 900); } }).observe(B, { attributes: true });
+  /* 底部固定 LINE 條：LINE 官方大格露出一半以上、或 LINE 社群那一列在畫面上時收起來，不會蓋住它們 */
+  function dock(sel) {
+    const d = document.querySelector(sel); if (!d) return;
+    const vis = new Map(), upd = () => d.classList.toggle("on", ![...vis.values()].some(Boolean));
+    const els = document.querySelectorAll("[data-line]");
+    if (!els.length || !("IntersectionObserver" in window)) { d.classList.add("on"); return; }
+    const io = new IntersectionObserver(es => { es.forEach(e => vis.set(e.target, e.target.dataset.line === "official" ? e.intersectionRatio >= .55 : e.isIntersecting)); upd(); }, { threshold: [0, .55, 1] });
+    els.forEach(e => { vis.set(e, true); io.observe(e); });
   }
   const raf = fn => { let on = false; return (...a) => { if (on) return; on = true; requestAnimationFrame(() => { on = false; fn(...a); }); }; };
 
-  window.OX = { D, V, P, B, ROOT, reduce, esc, asset, icon, socials, SND, toolbar, say, reveal, intro, finalize, raf, dock,
+  window.OX = { D, V, P, B, ROOT, reduce, esc, asset, icon, socials, SND, toolbar, say, reveal, start, finalize, raf, dock,
     videos: id => (V.channels[id] && V.channels[id].videos) || [], fetchedAt: V.fetchedAt };
 })();

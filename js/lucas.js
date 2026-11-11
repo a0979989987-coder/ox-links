@@ -1,13 +1,12 @@
 /* Lucas：紫金夜景時尚海報。
    封面照片整版出血，往下捲照片放大、標題字母往兩邊散開；拍立得卡片可以橫滑；城市窗戶一格一格亮，往下捲建築升起來。
-   背景散景光點用 2D canvas 疊加發光；手指／游標有一圈聚光燈跟著；點一下像按快門：白光一閃、所有窗戶齊亮、快門聲。 */
+   背景散景光點用 2D canvas 疊加發光；手指／游標有一圈聚光燈跟著；點一下（滑動不算）柔和閃一次加快門聲，1.5 秒內不重複；窗戶逐格亮起後保持亮著。 */
 (function () {
-  const { P, esc, asset, icon, socials, SND, reveal, intro, finalize, toolbar, reduce, D } = OX;
+  const { P, esc, asset, icon, socials, SND, reveal, finalize, toolbar, reduce, D } = OX;
   const B = document.body, app = document.getElementById("app");
   const letters = (P.name || "").toUpperCase().split("");
   const pols = [
     ...socials(P).map(s => ({ url: s.url, cap: s.label, sub: P.handle, img: s.k === "ig" ? asset(P.cover || P.photo) : "", ic: s.k, c: s.k === "ig" ? "#ff5fd2" : "#ffffff" })),
-    { url: D.lineCommunity.url, cap: "LINE 社群", sub: D.lineCommunity.title, ic: "chat", c: "#06C755" },
     ...D.tools.map(t => ({ url: t.url, cap: t.label, sub: "OX 工具", ic: t.icon, c: "#ffd27a" }))
   ];
   // 城市
@@ -25,13 +24,13 @@
     <div class="lu-title">
       ${P.alias ? `<span class="lu-script">${esc(P.alias)}</span>` : ""}
       <h1 class="lu-big" aria-label="${esc(P.name)}">${letters.map((ch, i) => `<span style="--k:${i - (letters.length - 1) / 2}">${esc(ch)}</span>`).join("")}</h1>
-      <div class="lu-meta"><span>${esc(P.handle)}</span><nav class="lu-soc">${socials(P).map(s => `<a href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}${s.k === "ig" ? "IG" : s.label}</a>`).join("")}</nav></div>
     </div>
   </header>
   <main class="lu">
     <div class="lu-h lu-first rv"><b>Free</b><i>tonight</i><small>LINE 官方</small></div>
-    <a class="lu-sign rv" href="${esc(D.lineOfficial.url)}"><span class="script">open</span><span class="neon">免費教材</span>
+    <a data-line="official" class="lu-sign rv" href="${esc(D.lineOfficial.url)}"><span class="script">open</span><span class="neon">免費教材</span>
       <span class="sub">${esc(D.lineOfficial.desc)}</span><span class="go">${icon("line")}${esc(D.lineOfficial.button)}</span></a>
+    <a data-line="community" class="lu-comm rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群</small></span><em>JOIN</em></a>
 
     <div class="lu-h rv"><b>Links</b><i>polaroids</i><small>往左滑</small></div>
     <div class="lu-rail">${pols.map((p, i) => `<a class="lu-pol rv" data-d="${Math.min(i, 3) * .08}" href="${esc(p.url)}" style="--c:${p.c}">
@@ -45,7 +44,7 @@
     <footer class="lu-foot">© 2026 ${esc(P.name)} · OX.Trading</footer>
   </main>
   <div class="lu-dock"><a href="${esc(D.lineOfficial.url)}">${icon("line")}${esc(D.lineOfficial.button)}</a></div>`;
-  toolbar(); finalize(); reveal(); OX.dock(".lu-dock", ".lu-sign");
+  toolbar(); finalize(); reveal(); OX.dock(".lu-dock");
 
   /* 捲動：照片放大、字母散開、建築升起 */
   const ph = document.querySelector(".lu-hero .ph"), big = document.querySelector(".lu-big"), cityEl = document.querySelector(".lu-city");
@@ -57,7 +56,7 @@
     cityEl.style.setProperty("--rise", ((1 - q) * 120).toFixed(0) + "px");
   });
   if (!reduce) { addEventListener("scroll", onScroll, { passive: true }); onScroll(); }
-  if ("IntersectionObserver" in window) new IntersectionObserver(es => cityEl.classList.toggle("live", es[0].isIntersecting)).observe(cityEl);
+  if ("IntersectionObserver" in window) new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { cityEl.classList.add("live"); o.disconnect(); } }).observe(cityEl);
   document.querySelectorAll(".lu-sign").forEach(el => el.addEventListener("enter", () => { SND.tone(60, .25, "sawtooth", .04); }));
 
   /* 散景 */
@@ -89,6 +88,8 @@
     if (reduce) return; B.classList.remove("snap"); void B.offsetWidth; B.classList.add("snap"); clearTimeout(B._st); B._st = setTimeout(() => B.classList.remove("snap"), 1000);
     SND.noise(.06, .35, 3000, "highpass"); setTimeout(() => SND.noise(.05, .25, 2000, "highpass"), 80);
   }
-  addEventListener("pointerdown", e => { if (B.classList.contains("intro-on")) return; spot.style.setProperty("--sx", e.clientX + "px"); spot.style.setProperty("--sy", e.clientY + "px"); snap(); }, { passive: true });
-  intro("LUCAS", () => {});
+  // 只在真的「點一下」（click，滑動不會觸發）時柔和閃一次；連點也不會連續閃
+  let lastSnap = 0;
+  addEventListener("click", e => { const now = performance.now(); if (now - lastSnap < 1500) return; lastSnap = now;
+    spot.style.setProperty("--sx", e.clientX + "px"); spot.style.setProperty("--sy", e.clientY + "px"); snap(); });
 })();
