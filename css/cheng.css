@@ -109,3 +109,29 @@
 .p-cheng .rv.in { transform: none; }
 .p-cheng .ch-hair.rv { transform: scaleX(0); transition: transform 1.6s cubic-bezier(.7, 0, .2, 1), opacity .3s; }
 .p-cheng .ch-hair.rv.in { transform: scaleX(1); }
+/* LINE 官方移到首屏：銘板縮小，第一章緊接在下面 */
+.ch-plate { margin-top: 12px; padding: 24px 22px 20px; }
+.ch-bezel { width: 104px; height: 104px; padding: 7px; }
+.ch-name { margin-top: 12px; font-size: 42px; }
+.ch-motto { margin-top: 6px; }
+.ch-first { padding-top: 22px; }
+.ch-first .ch-invite { margin-top: 12px; }
+.ch-first .ch-invite .in { padding: 18px 20px 18px; }
+.ch-first .ch-invite small { margin-top: 6px !important; }
+.ch-first .ch-invite h3 { margin: 6px 0 2px; }
+.ch-first .ch-invite .go { margin-top: 14px; }
+/* 背景層次 canvas（格線、走勢線、掃描線、浮塵），在拉絲紋理上、內容下 */
+#field { position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+/* 金屬邊緣的次要閃光：四芒星偶爾一閃，上緣一道細光沿邊跑 */
+.ch-glint { position: absolute; z-index: 3; width: 22px; height: 22px; pointer-events: none; opacity: 0; transform: scale(.3) rotate(0);
+  background: linear-gradient(90deg, transparent 45%, #fff 50%, transparent 55%), linear-gradient(0deg, transparent 45%, #fff 50%, transparent 55%),
+  radial-gradient(circle, rgba(255, 255, 255, .95) 0 2px, rgba(220, 232, 250, .4) 3px, transparent 8px); filter: drop-shadow(0 0 4px #fff);
+  animation: chGlint 7s ease-in-out infinite; }
+.ch-glint.g1 { top: 7px; left: 7px; animation-delay: 1.2s; }
+.ch-glint.g2 { bottom: 7px; right: 7px; animation-delay: 4.6s; }
+.ch-glint.g3 { top: -4px; right: -4px; animation-delay: 3s; animation-duration: 9s; }
+@keyframes chGlint { 0%, 86%, 100% { opacity: 0; transform: scale(.3) rotate(0); } 91% { opacity: 1; transform: scale(1.1) rotate(45deg); } 95% { opacity: .2; transform: scale(.6) rotate(80deg); } }
+.ch-edge { position: absolute; z-index: 3; top: 0; left: 0; width: 34%; height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, #fff, transparent); box-shadow: 0 0 8px #fff; transform: translateX(-110%); animation: chEdge 6.5s ease-in-out 2s infinite; }
+@keyframes chEdge { 0% { transform: translateX(-110%); } 30%, 100% { transform: translateX(310%); } }
+@media (prefers-reduced-motion: reduce) { .ch-glint, .ch-edge { display: none; } }

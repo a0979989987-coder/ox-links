@@ -27,14 +27,7 @@
         <h2 class="sh-name rv" data-d=".35">阿聖<span>聊交易</span></h2>
         <div class="sh-meta rv" data-d=".45">${P.role ? `<span class="sh-role">${esc(P.role)}</span>` : ""}<span class="sh-handle">${esc(P.handle)}</span></div>
         <div class="sh-soc rv" data-d=".5">${socials(P).map(s => `<a href="${esc(s.url)}" aria-label="${s.label}">${icon(s.k)}${s.k === "threads" ? "THREADS" : s.k.toUpperCase()}</a>`).join("")}</div>
-      </div>
-    </section>
-
-    <div class="sh-tick" aria-hidden="true"><div>${[...terms, ...terms].map(t => `<span>${t}</span>`).join("")}</div></div>
-
-    <section class="sh-sec" data-zone="0">
-      <div class="sh-h rv"><b>Free</b><small>免費教材</small><i>LINE 官方</i></div>
-      <a class="sh-ticket rv" href="${esc(D.lineOfficial.url)}">
+      <a class="sh-ticket sh-first rv" data-d=".55" href="${esc(D.lineOfficial.url)}">
         <div class="in">
           <div class="row"><span>ORDER TICKET</span><span>FREE · 0 元</span></div>
           <h3>免費教材</h3>
@@ -42,6 +35,13 @@
           <span class="go"><span>${esc(D.lineOfficial.button)}</span>${icon("arrow")}</span>
         </div>
       </a>
+      </div>
+    </section>
+
+    <div class="sh-tick" aria-hidden="true"><div>${[...terms, ...terms].map(t => `<span>${t}</span>`).join("")}</div></div>
+
+    <section class="sh-sec" data-zone="0">
+      <div class="sh-h rv"><b>Room</b><small>交易討論</small><i>LINE 社群</i></div>
       <a class="sh-room rv" href="${esc(D.lineCommunity.url)}">${icon("chat")}<span><b>${esc(D.lineCommunity.title)}</b><small>LINE 社群 · JOIN THE ROOM</small></span><em>加入</em></a>
     </section>
 

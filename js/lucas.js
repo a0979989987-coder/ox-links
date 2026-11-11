@@ -29,7 +29,7 @@
     </div>
   </header>
   <main class="lu">
-    <div class="lu-h rv"><b>Free</b><i>tonight</i><small>LINE 官方</small></div>
+    <div class="lu-h lu-first rv"><b>Free</b><i>tonight</i><small>LINE 官方</small></div>
     <a class="lu-sign rv" href="${esc(D.lineOfficial.url)}"><span class="script">open</span><span class="neon">免費教材</span>
       <span class="sub">${esc(D.lineOfficial.desc)}</span><span class="go">${icon("line")}${esc(D.lineOfficial.button)}</span></a>
 

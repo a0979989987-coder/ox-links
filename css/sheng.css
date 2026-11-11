@@ -131,3 +131,10 @@
 .sh-dock a { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 14px; background: #06C755; color: #021b0b; font: 900 16px/1 "Noto Sans TC", sans-serif; }
 .sh-dock a small { font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; }
 .sh-dock svg { width: 20px; height: 20px; }
+/* LINE 官方移到首屏：封面縮小，下單單接在社群按鈕下面 */
+.sh-mast { font-size: 46px; }
+.sh-photo { aspect-ratio: 1 / 1; }
+.sh-name { font-size: 76px; margin-top: -34px; }
+.sh-soc { margin-top: 10px; }
+.sh-first { margin-top: 14px; }
+.sh-first h3 { margin-top: 8px; font-size: 34px; }

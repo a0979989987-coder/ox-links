@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 BASE = os.environ.get("BASE", "http://localhost:8765/")
 IDS = ["sheng", "cheng", "chameleon", "lucas"]
+LINE_SEL = {"sheng": ".sh-ticket", "cheng": ".ch-invite", "chameleon": ".jg-chest", "lucas": ".lu-sign"}  # 每頁的 LINE 官方大格，必須整格在首屏內
 OUT = os.path.join(os.path.dirname(__file__), "..", "previews"); os.makedirs(OUT, exist_ok=True)
 CHROME = "/usr/bin/google-chrome" if os.path.exists("/usr/bin/google-chrome") else None
 VP = {"width": 390, "height": 844}
@@ -24,6 +25,8 @@ with sync_playwright() as p:
         pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
         pg.goto(BASE + pid + "/"); pg.wait_for_timeout(3200)
         pg.screenshot(path=f"{OUT}/{pid}_first.png")
+        bb = pg.evaluate(f"(()=>{{const r=document.querySelector('{LINE_SEL[pid]}').getBoundingClientRect();return [r.top,r.bottom,r.left,r.right].map(Math.round)}})()")
+        line_ok = bb[0] >= 0 and bb[1] <= VP["height"] and bb[2] >= 0 and bb[3] <= VP["width"]
         fps = pg.evaluate(FPS_JS)
         for y in range(0, 9000, 300): pg.evaluate(f"scrollTo(0,{y})"); pg.wait_for_timeout(110)
         pg.evaluate("scrollTo(0,0)"); pg.wait_for_timeout(700)
@@ -36,7 +39,7 @@ with sync_playwright() as p:
         pg.goto(BASE + pid + "/"); pg.wait_for_timeout(800)
         rm = pg.evaluate("({intro: document.body.classList.contains('intro-on'), hidden: [...document.querySelectorAll('.rv')].filter(e=>getComputedStyle(e).opacity<0.5).length})")
         c.close()
-        report[pid] = {"errors": errs, "scrollWidth": sw, "fps_while_scrolling": fps, "links": links, "reduced_motion": rm, "reduced_errors": rerr}
+        report[pid] = {"line_official_bbox_top_bottom_left_right": bb, "line_official_in_first_screen": line_ok, "errors": errs, "scrollWidth": sw, "fps_while_scrolling": fps, "links": links, "reduced_motion": rm, "reduced_errors": rerr}
         print(pid, json.dumps({k: v for k, v in report[pid].items() if k != "links"}, ensure_ascii=False))
 
     # 示範影片：每頁約 3 秒（開場、點一下、往下捲）
