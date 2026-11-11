@@ -1,0 +1,133 @@
+/* 阿聖聊交易：金融雜誌封面＋交易終端。硬邊、細格線、紅黑高對比，沒有毛玻璃、沒有圓角。 */
+.p-sheng { --red: #ff2d20; --red2: #b3120a; --ink: #070202; --bone: #f4ede4; --mute: rgba(244, 237, 228, .6); --grid: rgba(255, 45, 32, .14);
+  --i-bg: #070202; --i-hi: #ffe1d8; --i-mid: #ff2d20; --i-lo: #6a0904; --i-glow: rgba(255, 45, 32, .9); --i-rad: 0;
+  background: var(--ink); color: var(--bone); font-family: "Noto Sans TC", sans-serif; }
+.p-sheng .i-word { font: 900 30px/1 "Noto Serif TC", serif; letter-spacing: 6px; }
+/* 開場炸開：紅色硬邊快門往上下打開 */
+.p-sheng .i-burst { border-radius: 0; width: 100vw; height: 6px; margin: -3px 0 0 -50vw; background: var(--red); box-shadow: 0 0 40px var(--red); animation: shShutter .7s cubic-bezier(.7, 0, .2, 1) .95s forwards; }
+@keyframes shShutter { 0% { opacity: 1; transform: scaleY(1); } 100% { opacity: 1; transform: scaleY(300); } }
+.p-sheng #intro.done { transition: opacity .35s ease; }
+
+#chart { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.sh-light { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden;
+  background: radial-gradient(45vmax 35vmax at var(--lx, 30%) var(--ly, 18%), rgba(255, 236, 220, .16), transparent 70%); mix-blend-mode: screen; }
+.sh-light::after { content: ""; position: absolute; top: -50%; bottom: -50%; left: 0; width: 40%; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 236, 220, .28) 45%, rgba(255, 250, 240, .5) 50%, rgba(255, 236, 220, .28) 55%, transparent);
+  transform: translateX(-130%) rotate(14deg); }
+.p-sheng.flash .sh-light::after { animation: shBeam 1.5s cubic-bezier(.45, .05, .55, .95) forwards; }
+@keyframes shBeam { 0% { opacity: 1; } 100% { opacity: 1; transform: translateX(260%) rotate(14deg); } }
+
+.sh { position: relative; z-index: 2; max-width: 520px; margin: 0 auto; }
+.sh-mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+.sh-top { display: flex; justify-content: space-between; align-items: center; height: 44px; margin: env(safe-area-inset-top) 108px 0 16px;
+  font: 500 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; color: var(--mute); border-bottom: 1px solid var(--grid); }
+.sh-top b { color: var(--red); font-weight: 700; }
+.p-sheng .tb button { background: var(--ink); border: 1px solid var(--red); color: var(--bone); border-radius: 0; }
+
+/* 封面 */
+.sh-cover { position: relative; min-height: calc(100svh - 44px); padding: 14px 16px 22px; display: grid; grid-template-rows: auto 1fr auto; }
+.sh-mast { font: 700 64px/.86 "Oswald", sans-serif; letter-spacing: -1px; text-transform: uppercase; color: var(--red); text-shadow: 0 0 30px rgba(255, 45, 32, .35); }
+.sh-mast small { display: block; margin-top: 8px; font: 500 11px/1.4 "JetBrains Mono", monospace; letter-spacing: 3px; color: var(--bone); text-shadow: none; }
+.sh-rule { height: 1px; background: var(--red); margin: 12px 0; transform-origin: 0 50%; }
+.sh-stage { position: relative; display: grid; grid-template-columns: 1.25fr 1fr; gap: 12px; align-items: end; }
+.sh-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid var(--red); background: #1a0402; }
+.sh-photo img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.25) brightness(.95); transform: scale(1.04); }
+.sh-photo::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(255, 45, 32, .0), rgba(255, 45, 32, .55)); mix-blend-mode: multiply; }
+.sh-photo::after { content: ""; position: absolute; inset: 0; z-index: 2; background: radial-gradient(60% 50% at var(--px, 30%) var(--py, 20%), rgba(255, 240, 225, .45), transparent 65%); mix-blend-mode: soft-light; }
+.sh-photo .cap { position: absolute; z-index: 3; left: 0; bottom: 0; padding: 5px 8px; font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; background: var(--red); color: var(--ink); }
+.sh-lines { display: grid; gap: 14px; padding-bottom: 4px; }
+.sh-lines div { border-top: 1px solid var(--grid); padding-top: 8px; }
+.sh-lines small { display: block; font: 500 9px/1 "JetBrains Mono", monospace; letter-spacing: 2px; color: var(--red); }
+.sh-lines b { display: block; margin-top: 4px; font: 900 19px/1.2 "Noto Serif TC", serif; }
+.sh-name { position: relative; z-index: 4; margin-top: -40px; font: 900 92px/.9 "Noto Serif TC", serif; letter-spacing: -2px;
+  background: linear-gradient(180deg, #fff 0%, #ffd6cf 45%, #ff2d20 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, .9)); }
+.sh-name span { font-size: 38px; letter-spacing: 2px; margin-left: 6px; }
+.sh-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; }
+.sh-role { font: 700 13px/1 "Noto Sans TC", sans-serif; letter-spacing: 3px; padding: 8px 10px; background: var(--red); color: var(--ink); }
+.sh-handle { font: 500 12px/1 "JetBrains Mono", monospace; color: var(--mute); }
+.sh-soc { display: flex; gap: 0; margin-top: 14px; }
+.sh-soc a { display: flex; align-items: center; gap: 6px; height: 38px; padding: 0 12px; border: 1px solid var(--red); margin-right: -1px; font: 700 11px/1 "JetBrains Mono", monospace; letter-spacing: 1px; background: rgba(7, 2, 2, .75); transition: background .15s, color .15s; }
+.sh-soc a svg { width: 16px; height: 16px; }
+.sh-soc a:active, .sh-soc a:hover { background: var(--red); color: var(--ink); }
+
+/* 跑馬燈：只有術語 */
+.sh-tick { position: relative; z-index: 2; overflow: hidden; background: var(--red); color: var(--ink); transform: skewY(-2deg); margin: 18px 0 30px; border-block: 2px solid var(--ink); }
+.sh-tick div { display: flex; width: max-content; animation: shTick 22s linear infinite; }
+.sh-tick span { font: 700 14px/34px "JetBrains Mono", monospace; letter-spacing: 3px; padding: 0 18px; white-space: nowrap; }
+.sh-tick span::before { content: "▲ "; }
+.sh-tick span:nth-child(3n)::before { content: "▼ "; }
+@keyframes shTick { to { transform: translateX(-50%); } }
+
+.sh-sec { padding: 0 16px; margin-bottom: 40px; }
+.sh-h { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; border-bottom: 1px solid var(--red); padding-bottom: 8px; }
+.sh-h b { font: 700 30px/1 "Oswald", sans-serif; text-transform: uppercase; letter-spacing: 0; color: var(--bone); }
+.sh-h small { font: 500 11px/1 "JetBrains Mono", monospace; letter-spacing: 2px; color: var(--red); }
+.sh-h i { margin-left: auto; font: 500 10px/1 "JetBrains Mono", monospace; font-style: normal; color: var(--mute); }
+
+/* LINE 官方：交易單 */
+.sh-ticket { position: relative; display: block; padding: 3px; background: repeating-linear-gradient(90deg, #06C755 0 10px, transparent 10px 16px) 0 0 / 200% 3px no-repeat,
+  repeating-linear-gradient(90deg, #06C755 0 10px, transparent 10px 16px) 0 100% / 200% 3px no-repeat, repeating-linear-gradient(180deg, #06C755 0 10px, transparent 10px 16px) 0 0 / 3px 200% no-repeat,
+  repeating-linear-gradient(180deg, #06C755 0 10px, transparent 10px 16px) 100% 0 / 3px 200% no-repeat; animation: shAnts 1.2s linear infinite, shBreath 2.6s ease-in-out infinite; }
+@keyframes shAnts { to { background-position: 32px 0, -32px 100%, 0 -32px, 100% 32px; } }
+@keyframes shBreath { 50% { transform: scale(1.02); } }
+.sh-ticket .in { background: #04140a; border: 1px solid rgba(6, 199, 85, .4); padding: 14px; box-shadow: 0 0 40px rgba(6, 199, 85, .25), inset 0 0 60px rgba(6, 199, 85, .12); }
+.sh-ticket .row { display: flex; justify-content: space-between; font: 500 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; color: #59f19a; }
+.sh-ticket h3 { margin: 12px 0 4px; font: 900 40px/1 "Noto Serif TC", serif; color: #fff; }
+.sh-ticket p { font: 400 13px/1.6 "Noto Sans TC", sans-serif; color: rgba(255, 255, 255, .78); }
+.sh-ticket .go { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: space-between; margin-top: 14px; height: 58px; padding: 0 16px;
+  background: #06C755; color: #021b0b; font: 900 18px/1 "Noto Sans TC", sans-serif; letter-spacing: 1px; }
+.sh-ticket .go svg { width: 22px; height: 22px; }
+.sh-ticket .go::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .6) 50%, transparent 65%); transform: translateX(-100%); animation: shSweep 2.4s ease-in-out infinite; }
+@keyframes shSweep { 60%, 100% { transform: translateX(100%); } }
+.sh-cursor { display: inline-block; width: 9px; height: 16px; background: #59f19a; vertical-align: -2px; animation: shBlink 1s steps(1) infinite; }
+@keyframes shBlink { 50% { opacity: 0; } }
+.sh-room { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 14px; border: 1px solid #06C755; background: rgba(4, 20, 10, .8); position: relative; overflow: hidden; }
+.sh-room::before { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 40%; background: #59f19a; animation: shRun 2.2s linear infinite; }
+@keyframes shRun { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+.sh-room svg { width: 30px; height: 30px; color: #59f19a; flex: none; }
+.sh-room b { display: block; font: 700 17px/1.3 "Noto Sans TC", sans-serif; }
+.sh-room small { font: 500 11px/1 "JetBrains Mono", monospace; color: rgba(255, 255, 255, .6); }
+.sh-room em { margin-left: auto; font: 700 12px/1 "JetBrains Mono", monospace; font-style: normal; padding: 8px 10px; background: #06C755; color: #021b0b; }
+
+/* 關於：雜誌內頁 */
+.sh-about { background: rgba(7, 2, 2, .62); border: 1px solid var(--grid); padding: 16px; }
+.sh-about p { font: 400 15px/1.9 "Noto Serif TC", serif; }
+.sh-about p + p { margin-top: 8px; }
+.sh-about p:first-child::first-letter { float: left; font: 900 54px/.9 "Noto Serif TC", serif; color: var(--red); margin: 4px 8px 0 0; }
+.sh-src { display: block; margin-top: 10px; font: 500 10px/1.5 "JetBrains Mono", monospace; color: var(--mute); word-break: break-all; }
+
+/* 最新影片：目錄 */
+.sh-issue a { display: grid; grid-template-columns: 26px 118px 1fr; gap: 10px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--grid); background: linear-gradient(90deg, rgba(7, 2, 2, .7), rgba(7, 2, 2, .35)); }
+.sh-issue .no { font: 700 22px/1 "Oswald", sans-serif; color: var(--red); }
+.sh-issue img { width: 118px; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--red); filter: saturate(.7) contrast(1.1); transition: filter .2s; }
+.sh-issue a:hover img, .sh-issue a:active img { filter: none; }
+.sh-issue b { display: block; font: 700 14px/1.45 "Noto Serif TC", serif; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.sh-issue small { display: block; margin-top: 4px; font: 500 10px/1 "JetBrains Mono", monospace; color: var(--mute); letter-spacing: 1px; }
+
+/* OX 工具：終端機指令列 */
+.sh-term { border: 1px solid var(--red); background: rgba(7, 2, 2, .78); font-family: "JetBrains Mono", monospace; }
+.sh-term .bar { display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--grid); font-size: 10px; color: var(--mute); letter-spacing: 2px; }
+.sh-term .bar i { width: 8px; height: 8px; background: var(--red); }
+.sh-term a { display: grid; grid-template-columns: 18px 26px 1fr auto; align-items: center; gap: 8px; height: 62px; padding: 0 12px; border-bottom: 1px solid var(--grid); transition: background .12s, color .12s; }
+.sh-term a:last-child { border-bottom: 0; }
+.sh-term a::before { content: ">"; color: var(--red); font-weight: 700; }
+.sh-term svg { width: 24px; height: 24px; color: var(--red); }
+.sh-term b { font: 700 18px/1 "Noto Sans TC", sans-serif; }
+.sh-term small { font-size: 10px; color: var(--mute); }
+.sh-term a:hover, .sh-term a:active { background: var(--red); color: var(--ink); }
+.sh-term a:hover svg, .sh-term a:active svg, .sh-term a:hover::before, .sh-term a:active::before { color: var(--ink); }
+.sh-foot { padding: 20px 16px calc(30px + env(safe-area-inset-bottom)); font: 500 10px/1.6 "JetBrains Mono", monospace; color: var(--mute); letter-spacing: 1px; border-top: 1px solid var(--grid); }
+
+/* 入場：從下方硬切上來 */
+.p-sheng .rv { transform: translateY(26px); clip-path: inset(0 0 100% 0); transition: opacity .5s, transform .6s cubic-bezier(.2, .8, .2, 1), clip-path .6s cubic-bezier(.7, 0, .2, 1); }
+.p-sheng .rv.in { transform: none; clip-path: inset(0 0 0 0); }
+.p-sheng .sh-rule.rv { transform: scaleX(0); clip-path: none; } .p-sheng .sh-rule.rv.in { transform: scaleX(1); }
+
+/* 底部固定 LINE 條：終端機狀態列 */
+.sh-dock { position: fixed; z-index: 50; left: 0; right: 0; bottom: 0; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: var(--ink); border-top: 1px solid var(--red);
+  transform: translateY(110%); transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+.sh-dock.on { transform: none; }
+.sh-dock a { display: flex; align-items: center; justify-content: space-between; height: 48px; padding: 0 14px; background: #06C755; color: #021b0b; font: 900 16px/1 "Noto Sans TC", sans-serif; }
+.sh-dock a small { font: 700 10px/1 "JetBrains Mono", monospace; letter-spacing: 2px; }
+.sh-dock svg { width: 20px; height: 20px; }

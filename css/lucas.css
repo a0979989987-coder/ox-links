@@ -1,0 +1,105 @@
+/* Lucas：紫金夜景時尚海報。照片整版出血、底片顆粒、霓虹字、拍立得橫滑、城市窗戶逐格亮。沒有毛玻璃卡片。 */
+.p-lucas { --vio: #b36bff; --pink: #ff5fd2; --gold: #ffd27a; --night: #0b0612; --i-bg: #0b0612; --i-hi: #fff1d0; --i-mid: #d6a8ff; --i-lo: #6a2fa8; --i-glow: rgba(200, 140, 255, .9); --i-rad: 20px;
+  background: var(--night); color: #fff; font-family: "Noto Sans TC", sans-serif; font-weight: 300; }
+.p-lucas .i-word { font: 400 64px/1 "Bebas Neue", sans-serif; letter-spacing: 10px; }
+/* 開場炸開：閃光燈一閃 */
+.p-lucas .i-burst { background: radial-gradient(circle, #fff 0%, #fff 25%, #ffd27a 40%, #b36bff 55%, transparent 72%); }
+.p-lucas .i-sparks i { width: 3px; height: 34px; background: linear-gradient(#fff, var(--vio)); }
+.p-lucas .tb button { border-radius: 50%; border: 1.5px solid var(--gold); color: var(--gold); background: rgba(11, 6, 18, .5); box-shadow: 0 0 12px rgba(255, 210, 122, .5), inset 0 0 8px rgba(255, 210, 122, .3); }
+
+#bokeh { position: fixed; inset: 0; z-index: 3; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: screen; }
+.lu-spot { position: fixed; inset: 0; z-index: 4; pointer-events: none; background: radial-gradient(160px 160px at var(--sx, 50%) var(--sy, 40%), rgba(255, 230, 190, .16), transparent 70%); mix-blend-mode: screen; }
+.lu-snap { position: fixed; inset: 0; z-index: 80; pointer-events: none; background: #fff; opacity: 0; }
+.p-lucas.snap .lu-snap { animation: luSnap .5s ease-out; }
+@keyframes luSnap { 0% { opacity: .9; } 100% { opacity: 0; } }
+
+/* 封面：整版出血照片 */
+.lu-hero { position: relative; height: 100svh; min-height: 620px; overflow: hidden; }
+.lu-hero .ph { position: absolute; inset: -4%; background-size: cover; background-position: 50% 30%; transform: translate3d(0, var(--py, 0px), 0) scale(var(--ps, 1.06)); will-change: transform;
+  filter: saturate(1.25) contrast(1.08); }
+.lu-hero .tone { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(60, 10, 110, .35) 0%, rgba(11, 6, 18, 0) 30%, rgba(11, 6, 18, .25) 55%, var(--night) 96%),
+  linear-gradient(90deg, rgba(179, 107, 255, .35), rgba(255, 210, 122, .18)); mix-blend-mode: normal; }
+.lu-hero .grain { position: absolute; inset: 0; opacity: .22; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.lu-issue { position: absolute; z-index: 2; top: calc(16px + env(safe-area-inset-top)); left: 16px; font: 400 15px/1 "Bebas Neue", sans-serif; letter-spacing: 4px; color: var(--gold); }
+.lu-issue small { display: block; margin-top: 4px; font: 300 10px/1 "Noto Sans TC", sans-serif; letter-spacing: 3px; color: rgba(255, 255, 255, .7); }
+.lu-title { position: absolute; z-index: 2; left: 0; right: 0; bottom: calc(92px + env(safe-area-inset-bottom)); padding: 0 16px; }
+.lu-script { display: block; font: 400 44px/1 "Yellowtail", cursive; color: #ffe6ff; transform: rotate(-6deg); transform-origin: 0 100%; margin: 0 0 -12px 6px;
+  text-shadow: 0 0 6px #fff, 0 0 14px var(--pink), 0 0 30px var(--pink), 0 0 60px var(--vio); animation: luFlicker 6s linear infinite; }
+@keyframes luFlicker { 0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; } 20%, 63% { opacity: .35; } }
+.lu-big { display: flex; font: 400 168px/.82 "Bebas Neue", sans-serif; letter-spacing: -2px; }
+.lu-big span { display: inline-block; color: transparent; -webkit-text-stroke: 2px var(--gold); text-shadow: 0 0 24px rgba(255, 210, 122, .55); transform: translate3d(calc(var(--spread, 0) * var(--k) * 1px), 0, 0); }
+.lu-big span:nth-child(odd) { color: #fff; -webkit-text-stroke: 0; text-shadow: 0 0 2px #fff, 0 0 18px var(--vio), 0 0 40px var(--vio); }
+.lu-meta { display: flex; align-items: center; gap: 12px; margin-top: 12px; font: 300 12px/1 "Noto Sans TC", sans-serif; letter-spacing: 3px; color: rgba(255, 255, 255, .85); }
+.lu-soc { display: flex; gap: 8px; margin-left: auto; }
+.lu-soc a { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 17px; border: 1.5px solid #fff; font: 400 14px/1 "Bebas Neue", sans-serif; letter-spacing: 2px;
+  box-shadow: 0 0 10px var(--vio), inset 0 0 8px var(--vio); transition: background .15s; }
+.lu-soc a:active { background: #fff; color: var(--night); }
+.lu-soc svg { width: 15px; height: 15px; }
+
+.lu { position: relative; z-index: 2; max-width: 480px; margin: 0 auto; }
+.lu-h { padding: 0 16px; margin: 54px 0 16px; display: flex; align-items: baseline; gap: 12px; }
+.lu-h b { font: 400 46px/.9 "Bebas Neue", sans-serif; letter-spacing: 1px; color: var(--gold); text-shadow: 0 0 18px rgba(255, 210, 122, .5); }
+.lu-h i { font: 400 26px/1 "Yellowtail", cursive; color: var(--pink); text-shadow: 0 0 10px var(--pink); }
+.lu-h small { margin-left: auto; font: 300 11px/1 "Noto Sans TC", sans-serif; letter-spacing: 3px; color: rgba(255, 255, 255, .6); }
+
+/* LINE 官方：霓虹招牌 */
+.lu-sign { position: relative; display: block; margin: 0 16px; padding: 30px 18px 22px; text-align: center; border-radius: 20px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(90% 70% at 50% 40%, rgba(6, 199, 85, .18), transparent 70%), repeating-linear-gradient(0deg, #150d1d 0 22px, #120a19 22px 24px), #120a19;
+  box-shadow: 0 0 0 2px #06C755, 0 0 26px rgba(6, 199, 85, .8), inset 0 0 30px rgba(6, 199, 85, .35); animation: luBreath 2.6s ease-in-out infinite; }
+@keyframes luBreath { 50% { transform: scale(1.02); box-shadow: 0 0 0 2px #7dffb0, 0 0 46px rgba(6, 199, 85, 1), inset 0 0 40px rgba(6, 199, 85, .5); } }
+.lu-sign::before { content: ""; position: absolute; inset: 6px; border-radius: 15px; border: 2px dashed rgba(125, 255, 176, .5); animation: luDash 8s linear infinite; z-index: -1; }
+@keyframes luDash { to { filter: hue-rotate(40deg); transform: rotate(.0001deg); } }
+.lu-sign .neon { display: block; font: 700 46px/1.1 "Noto Sans TC", sans-serif; letter-spacing: 6px; color: #eafff2;
+  text-shadow: 0 0 4px #fff, 0 0 12px #06C755, 0 0 26px #06C755, 0 0 50px #06C755; }
+.lu-sign.in .neon { animation: luOn 1.4s steps(1) 1; }
+@keyframes luOn { 0% { opacity: .15; } 12% { opacity: 1; } 18% { opacity: .2; } 26% { opacity: 1; } 34% { opacity: .4; } 40%, 100% { opacity: 1; } }
+.lu-sign .sub { display: block; margin-top: 10px; font: 300 13px/1.6 "Noto Sans TC", sans-serif; letter-spacing: 2px; color: rgba(255, 255, 255, .8); }
+.lu-sign .go { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; height: 58px; border-radius: 29px; background: #06C755; color: #031a0b;
+  font: 700 17px/1 "Noto Sans TC", sans-serif; letter-spacing: 2px; box-shadow: 0 0 24px rgba(6, 199, 85, .9); }
+.lu-sign .go svg { width: 20px; height: 20px; }
+.lu-sign .script { position: absolute; top: 10px; right: 14px; font: 400 22px/1 "Yellowtail", cursive; color: var(--gold); text-shadow: 0 0 10px var(--gold); transform: rotate(-8deg); }
+
+/* 拍立得橫滑 */
+.lu-rail { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 18px 16px 34px; scrollbar-width: none; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; overscroll-behavior-x: contain; }
+.lu-rail::-webkit-scrollbar { display: none; }
+.lu-pol { flex: 0 0 64%; scroll-snap-align: center; background: #f6f1e7; color: #221a2a; padding: 10px 10px 0; border-radius: 3px; transform: rotate(var(--r, -3deg));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .6), 0 0 30px rgba(179, 107, 255, .25); transition: transform .3s cubic-bezier(.3, 1.4, .5, 1); }
+.lu-pol:nth-child(even) { --r: 3deg; }
+.lu-pol:active { transform: rotate(0) scale(.97); }
+.lu-pol .shot { position: relative; aspect-ratio: 1; overflow: hidden; background: #1a0f26; display: grid; place-items: center; }
+.lu-pol .shot img { width: 100%; height: 100%; object-fit: cover; }
+.lu-pol .shot svg { width: 46%; height: 46%; color: #fff; filter: drop-shadow(0 0 10px var(--c, var(--vio))) drop-shadow(0 0 24px var(--c, var(--vio))); }
+.lu-pol .shot::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255, 255, 255, .22), transparent 40%); }
+.lu-pol .cap { display: block; padding: 10px 2px 14px; font: 400 24px/1.1 "Yellowtail", cursive; }
+.lu-pol .cap small { display: block; margin-top: 4px; font: 500 11px/1 "Noto Sans TC", sans-serif; letter-spacing: 2px; color: #6a5a78; }
+.lu-hint { padding: 0 16px; margin-top: -18px; font: 400 14px/1 "Bebas Neue", sans-serif; letter-spacing: 3px; color: rgba(255, 255, 255, .5); }
+
+/* 城市夜景：窗戶逐格亮 */
+.lu-city { position: relative; height: 380px; margin-top: 40px; overflow: hidden; }
+.lu-city .sky { position: absolute; inset: 0; background: radial-gradient(70% 60% at 50% 100%, rgba(255, 210, 122, .35), transparent 70%), radial-gradient(60% 50% at 20% 30%, rgba(179, 107, 255, .35), transparent 70%); }
+.lu-city svg.arch { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; }
+.lu-city svg.arch path { fill: none; stroke-linecap: round; stroke-dasharray: 1.5 9; animation: luChase 1.4s linear infinite; }
+@keyframes luChase { to { stroke-dashoffset: -21; } }
+.lu-city .tower { position: absolute; left: 50%; bottom: 0; width: 90px; height: 330px; margin-left: -45px; transform: translateY(var(--rise, 40px)); transition: transform .2s linear; }
+.lu-city .tower path { fill: none; stroke: var(--gold); stroke-width: 1.6; filter: drop-shadow(0 0 4px #ffb84d); }
+.lu-b { position: absolute; bottom: 0; display: grid; gap: 4px; padding: 8px 6px; align-content: start; background: linear-gradient(180deg, #1a0a2a, #07030c); border-top: 1px solid rgba(214, 168, 255, .35);
+  transform: translateY(var(--rise, 40px)); transition: transform .2s linear; }
+.lu-b i { width: 7px; height: 8px; background: #ffd27a; box-shadow: 0 0 6px #ffb84d; opacity: .06; }
+.lu-b i.v { background: #e2b8ff; box-shadow: 0 0 6px #c79bff; }
+.lu-city.live .lu-b i { animation: luLit 6s steps(1) infinite; animation-delay: var(--d); }
+@keyframes luLit { 0% { opacity: .06; } 5%, 74% { opacity: 1; } 80%, 100% { opacity: .06; } }
+.p-lucas.snap .lu-b i { animation: luAll 1s steps(1) 1 !important; }
+@keyframes luAll { 0%, 100% { opacity: 1; } }
+.lu-city .wm { position: absolute; left: 0; right: 0; top: 30px; text-align: center; font: 400 40px/1 "Yellowtail", cursive; color: #ffe6ff; text-shadow: 0 0 10px var(--pink), 0 0 30px var(--vio); }
+
+.lu-foot { padding: 20px 16px calc(110px + env(safe-area-inset-bottom)); text-align: center; font: 400 14px/1.6 "Bebas Neue", sans-serif; letter-spacing: 4px; color: rgba(255, 255, 255, .5); }
+.lu-dock { position: fixed; z-index: 50; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom)); transform: translate(-50%, 160%); transition: transform .5s cubic-bezier(.2, .8, .2, 1); }
+.lu-dock.on { transform: translate(-50%, 0); }
+.lu-dock a { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 22px; border-radius: 26px; white-space: nowrap; background: rgba(11, 6, 18, .9); border: 2px solid #06C755; color: #eafff2;
+  font: 700 15px/1 "Noto Sans TC", sans-serif; letter-spacing: 1px; box-shadow: 0 0 20px rgba(6, 199, 85, .8), inset 0 0 12px rgba(6, 199, 85, .5); text-shadow: 0 0 8px #06C755; }
+.lu-dock svg { width: 22px; height: 22px; color: #06C755; --line-ink: #0b0612; }
+
+/* 入場：從模糊對焦 */
+.p-lucas .rv { filter: blur(10px); transform: translateY(20px) scale(1.03); transition: opacity .9s, filter .9s, transform .9s cubic-bezier(.2, .8, .2, 1); }
+.p-lucas .rv.in { filter: none; transform: none; }
+.p-lucas .lu-pol.rv.in { transform: rotate(var(--r, -3deg)); }

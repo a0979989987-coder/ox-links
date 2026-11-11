@@ -55,6 +55,14 @@ window.OX_DATA = {
       tags: ["ICT", "SNR 支撐壓力", "BTC"],
       verified: true,
       source: "YouTube 頻道簡介：【加密貨幣|技術分析|區塊鏈】ICT SNR TRADER",
+      cover: "assets/img/cover/sheng.jpg",   // 大張封面照（暫用 YouTube 大頭貼原圖）
+      about: [                                 // 只放查證過的內容，出處見 aboutSource
+        "2020 年進入加密市場，至今 5 年多。",
+        "系統化學習 ICT、SNR 整套交易策略，反覆研究實踐價格行為交易法。",
+        "頻道分享 ICT、SNR 交易策略的相關知識。",
+        "純粹分享，不構成買賣建議，請自行評估風險。"
+      ],
+      aboutSource: "https://www.youtube.com/@shengtrader_snr/about（2026-11-11 擷取）",
       photo: "assets/img/avatars/sheng.png",
       photoNote: "暫用 YouTube 頻道大頭貼；使用者的 App 截圖到了要換（tools/crop_circle.py 預設 detect 模式）",
       theme: "snr",
@@ -75,6 +83,14 @@ window.OX_DATA = {
       tags: ["台股", "產業分析", "BTC"],
       verified: true,
       source: "YouTube 頻道名稱「老承 產業分析 BTC交易分析」與簡介「分享台北股市的每日分析解盤」",
+      cover: "assets/img/cover/cheng.jpg",
+      motto: "你肯學，我就肯教",
+      about: [
+        "定期分享台北股市的每日分析解盤，以及股市知識。",
+        "近期影片主題包含 OB 訂單塊、FVG，以及高業證照法規系列。",
+        "影片內容為個人經驗與觀點分享，不構成投資建議，投資有風險，盈虧自負。"
+      ],
+      aboutSource: "https://www.youtube.com/@Cryptocheng/about 與頻道影片列表（2026-11-11 擷取）",
       photo: "assets/img/avatars/cheng.png",
       photoNote: "暫用 YouTube 頻道大頭貼；使用者的 App 截圖（黑 polo、雙手交叉側臉）到了要換",
       theme: "mono",
@@ -95,6 +111,9 @@ window.OX_DATA = {
       tags: [],
       verified: false,
       source: "YouTube 頻道（Kampbell Cheng）沒有簡介也沒有影片，主業待本人提供",
+      cover: "assets/img/avatars/chameleon_cutout.png",
+      alias: "Kampbell Cheng",                 // YouTube 與 Threads 上的顯示名稱
+      about: [],                               // 沒有可查證的介紹，先不寫
       photo: "assets/img/avatars/chameleon.png",
       photoCutout: "assets/img/avatars/chameleon_cutout.png",
       photoNote: "Threads @kampbel1 大頭貼去白底，跟使用者描述的圖相同（變色龍抱比特幣）",
@@ -116,6 +135,9 @@ window.OX_DATA = {
       tags: [],
       verified: false,
       source: "沒有 YouTube；只從 Threads 顯示名稱 Crypto_Lucas 推測，未驗證",
+      cover: "assets/img/cover/lucas.jpg",
+      alias: "Crypto_Lucas",                   // Threads 顯示名稱
+      about: [],
       photo: "assets/img/avatars/lucas.png",
       photoNote: "暫用 Threads @gorani.___ 大頭貼；使用者傳的夜景照到了要換",
       theme: "night",

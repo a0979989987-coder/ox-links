@@ -1,52 +1,73 @@
-#!/usr/bin/env python3
-"""headless Chromium 截圖、錄影、FPS 量測。先在 v2/ 開 python3 -m http.server 8765，再跑 python3 tools/preview.py
-輸出：previews/<id>_first.png、<id>_intro.png、<id>_tap.png、<id>_full.png、all_four.png、hub.png、demo_four.mp4"""
-import subprocess, os, shutil, json
+"""產生預覽：每頁首屏與整頁截圖、四頁並排圖、約 12 秒示範影片，並量 fps、檢查錯誤、reduced-motion 與水平溢出。
+用法：先在 v2 目錄跑 python3 -m http.server 8765，再跑 python3 tools/preview.py
+需要 playwright（python3 -m playwright install ffmpeg）、Pillow、系統 ffmpeg。輸出到 previews/（已在 .gitignore）。"""
+import os, glob, json, shutil, subprocess, tempfile
 from playwright.sync_api import sync_playwright
 from PIL import Image, ImageDraw, ImageFont
-BASE = "http://localhost:8765/"; OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "previews")
-IDS = ["sheng", "cheng", "chameleon", "lucas"]; NAMES = ["阿聖聊交易", "老承", "交易變色龍", "Lucas"]
-VP = {"width": 390, "height": 844}; CHROME = shutil.which("google-chrome")
-FPS_JS = """() => new Promise(r => { let f = 0, t0 = performance.now(), y = 0, long = 0, last = t0;
-  function s(t) { f++; if (t - last > 50) long++; last = t; y += 5; scrollTo(0, y % 900); if (t - t0 < 3000) requestAnimationFrame(s); else r({ fps: +(f / ((t - t0) / 1000)).toFixed(1), framesOver50ms: long }); }
-  requestAnimationFrame(s); })"""
+
+BASE = os.environ.get("BASE", "http://localhost:8765/")
+IDS = ["sheng", "cheng", "chameleon", "lucas"]
+OUT = os.path.join(os.path.dirname(__file__), "..", "previews"); os.makedirs(OUT, exist_ok=True)
+CHROME = "/usr/bin/google-chrome" if os.path.exists("/usr/bin/google-chrome") else None
+VP = {"width": 390, "height": 844}
+FPS_JS = """() => new Promise(r => { let n = 0, t0 = performance.now(); const f = () => { n++; if (performance.now() - t0 < 2000) requestAnimationFrame(f); else r(n / 2); };
+  requestAnimationFrame(f); let y = 0; const s = setInterval(() => { y += 40; scrollTo(0, y); }, 16); setTimeout(() => clearInterval(s), 2000); })"""
+
+def ctx_of(b, **kw):
+    return b.new_context(viewport=VP, device_scale_factor=2, is_mobile=True, has_touch=True, **kw)
+
 report = {}
 with sync_playwright() as p:
-    b = p.chromium.launch(executable_path=CHROME)
-    ctx = b.new_context(viewport=VP, device_scale_factor=2, is_mobile=True, has_touch=True)
-    pg = ctx.new_page(); errs = []
-    pg.on("pageerror", lambda e: errs.append(str(e)))
-    pg.on("requestfailed", lambda r: errs.append("failed " + r.url))
-    for i in IDS:
-        pg.goto(BASE + i + "/", wait_until="domcontentloaded"); pg.wait_for_timeout(700)
-        pg.screenshot(path=f"{OUT}/{i}_intro.png")
-        pg.wait_for_timeout(2300)
-        pg.screenshot(path=f"{OUT}/{i}_first.png")
-        pg.dispatch_event("body", "pointerdown", {"clientX": 195, "clientY": 300})
-        pg.wait_for_timeout({"sheng": 800, "cheng": 1100, "chameleon": 200, "lucas": 300}[i])
-        pg.screenshot(path=f"{OUT}/{i}_tap.png")
-        pg.wait_for_timeout(1500)
-        pg.screenshot(path=f"{OUT}/{i}_full.png", full_page=True)
-        report[i] = {"scrollWidth": pg.evaluate("document.documentElement.scrollWidth"), "title": pg.title(),
-                     "domNodes": pg.evaluate("document.querySelectorAll('*').length"), **pg.evaluate(FPS_JS)}
-    pg.goto(BASE, wait_until="domcontentloaded"); pg.wait_for_timeout(600); pg.screenshot(path=f"{OUT}/hub.png")
-    report["errors"] = errs
-    ctx.close()
-    vctx = b.new_context(viewport=VP, is_mobile=True, has_touch=True, record_video_dir="/tmp/ox_vid4", record_video_size=VP)
-    v = vctx.new_page()
-    for i in IDS:
-        v.goto(BASE + i + "/", wait_until="domcontentloaded"); v.wait_for_timeout(1750)
-        v.dispatch_event("body", "pointerdown", {"clientX": 200, "clientY": 330}); v.wait_for_timeout(900)
-    vp = v.video.path(); vctx.close(); b.close()
-subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", vp, "-t", "11", "-vf", "fps=30,format=yuv420p", "-c:v", "libx264", "-crf", "24", "-movflags", "+faststart", f"{OUT}/demo_four.mp4"], check=True)
-# 四頁並排總覽
-ims = [Image.open(f"{OUT}/{i}_first.png").convert("RGB") for i in IDS]
-w, h = ims[0].size; gap = 24; lab = 70
-sheet = Image.new("RGB", (w * 4 + gap * 5, h + lab + gap), (14, 12, 10)); d = ImageDraw.Draw(sheet)
-try: font = ImageFont.truetype("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc", 40)
-except Exception: font = ImageFont.load_default()
-for k, im in enumerate(ims):
-    x = gap + k * (w + gap); sheet.paste(im, (x, lab))
-    t = f"/{IDS[k]}/  {NAMES[k]}"; d.text((x + (w - d.textlength(t, font=font)) / 2, 14), t, font=font, fill=(240, 230, 210))
+    b = p.chromium.launch(executable_path=CHROME, args=["--enable-unsafe-swiftshader"])
+    for pid in IDS:
+        c = ctx_of(b); pg = c.new_page(); errs = []
+        pg.on("pageerror", lambda e: errs.append(str(e))); pg.on("console", lambda m: errs.append(m.text) if m.type == "error" else None)
+        pg.goto(BASE + pid + "/"); pg.wait_for_timeout(3200)
+        pg.screenshot(path=f"{OUT}/{pid}_first.png")
+        fps = pg.evaluate(FPS_JS)
+        for y in range(0, 9000, 300): pg.evaluate(f"scrollTo(0,{y})"); pg.wait_for_timeout(110)
+        pg.evaluate("scrollTo(0,0)"); pg.wait_for_timeout(700)
+        pg.screenshot(path=f"{OUT}/{pid}_full.png", full_page=True)
+        sw = pg.evaluate("document.documentElement.scrollWidth")
+        links = pg.evaluate("[...new Set([...document.querySelectorAll('a[href]')].map(a=>a.href))]")
+        c.close()
+        c = ctx_of(b, reduced_motion="reduce"); pg = c.new_page(); rerr = []
+        pg.on("pageerror", lambda e: rerr.append(str(e)))
+        pg.goto(BASE + pid + "/"); pg.wait_for_timeout(800)
+        rm = pg.evaluate("({intro: document.body.classList.contains('intro-on'), hidden: [...document.querySelectorAll('.rv')].filter(e=>getComputedStyle(e).opacity<0.5).length})")
+        c.close()
+        report[pid] = {"errors": errs, "scrollWidth": sw, "fps_while_scrolling": fps, "links": links, "reduced_motion": rm, "reduced_errors": rerr}
+        print(pid, json.dumps({k: v for k, v in report[pid].items() if k != "links"}, ensure_ascii=False))
+
+    # 示範影片：每頁約 3 秒（開場、點一下、往下捲）
+    tmp = tempfile.mkdtemp(); clips = []
+    for pid in IDS:
+        c = b.new_context(viewport=VP, device_scale_factor=1, is_mobile=True, has_touch=True, record_video_dir=tmp, record_video_size=VP)
+        pg = c.new_page(); pg.goto(BASE + pid + "/"); pg.wait_for_timeout(1700)
+        pg.mouse.click(195, 300); pg.wait_for_timeout(500)
+        for y in range(0, 700, 35): pg.evaluate(f"scrollTo(0,{y})"); pg.wait_for_timeout(22)
+        pg.wait_for_timeout(300)
+        path = pg.video.path(); c.close(); clips.append(path)
+    b.close()
+
+lst = os.path.join(tmp, "list.txt"); parts = []
+for i, cl in enumerate(clips):
+    o = os.path.join(tmp, f"c{i}.mp4")
+    # 頁面載入前的白屏剪掉，每段取 3 秒
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "0.35", "-i", cl, "-t", "3", "-r", "30", "-vf", "scale=390:844,format=yuv420p", "-c:v", "libx264", "-crf", "22", o], check=True)
+    parts.append(o)
+open(lst, "w").write("".join(f"file '{x}'\n" for x in parts))
+subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", f"{OUT}/demo_four.mp4"], check=True)
+shutil.rmtree(tmp, ignore_errors=True)
+
+# 四頁並排
+ims = [Image.open(f"{OUT}/{i}_first.png").convert("RGB").resize((390, 844)) for i in IDS]
+gap, top = 16, 44
+sheet = Image.new("RGB", (390 * 4 + gap * 5, 844 + top + gap), (18, 18, 20)); d = ImageDraw.Draw(sheet)
+try: f = ImageFont.truetype(glob.glob("/usr/share/fonts/**/NotoSansCJK*Regular*", recursive=True)[0], 22)
+except Exception: f = ImageFont.load_default()
+for k, (pid, im) in enumerate(zip(IDS, ims)):
+    x = gap + k * (390 + gap); sheet.paste(im, (x, top)); d.text((x, 12), f"/{pid}/", fill=(230, 230, 230), font=f)
 sheet.save(f"{OUT}/all_four.png")
-print(json.dumps(report, ensure_ascii=False, indent=1))
+json.dump(report, open(f"{OUT}/report.json", "w"), ensure_ascii=False, indent=1)
+print("done", OUT)

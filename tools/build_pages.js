@@ -8,9 +8,17 @@ const root = path.join(__dirname, "..");
 global.window = {}; eval(fs.readFileSync(path.join(root, "js/data.js"), "utf8"));
 const D = window.OX_DATA, SITE = (process.env.SITE || "").replace(/\/?$/, process.env.SITE ? "/" : "");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const color = { snr: "#0c0404", mono: "#0b0c0e", jungle: "#040b0b", night: "#0b0612" };
+const color = { sheng: "#070202", cheng: "#101113", chameleon: "#03140f", lucas: "#0b0612" };
+// 每頁自己的字體搭配
+const FONTS = {
+  sheng: "family=Oswald:wght@500;700&family=JetBrains+Mono:wght@500;700&family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;700;900",
+  cheng: "family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300;1,500&family=Noto+Serif+TC:wght@300;500;700&family=Noto+Sans+TC:wght@300;400",
+  chameleon: "family=Fredoka:wght@500;600;700&family=Noto+Sans+TC:wght@500;700;900",
+  lucas: "family=Bebas+Neue&family=Yellowtail&family=Noto+Sans+TC:wght@300;500;700",
+  hub: "family=Noto+Serif+TC:wght@700&family=Noto+Sans+TC:wght@400"
+};
 
-function head({ title, desc, image, url, theme, root }) {
+function head({ title, desc, image, url, theme, root, id }) {
   const img = SITE ? SITE + image : root + image;
   return `<!doctype html>
 <html lang="zh-Hant-TW">
@@ -29,37 +37,35 @@ ${SITE ? `<meta property="og:url" content="${esc(SITE + url)}">\n` : ""}<meta na
 <link rel="apple-touch-icon" href="${root}assets/img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@1,500&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${root}css/base.css">
-<link rel="stylesheet" href="${root}css/themes.css">
+<link href="https://fonts.googleapis.com/css2?${FONTS[id]}&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${root}css/core.css">
+${id !== "hub" ? `<link rel="stylesheet" href="${root}css/${id}.css">` : ""}
 </head>`;
 }
 const INTRO = `<!-- 開場：K 線從底部衝上來炸開，點一下跳過 -->
 <div id="intro" aria-hidden="true"><div class="i-grid"></div><div class="i-candle"><i class="i-wick"></i><i class="i-body"></i></div>
   <div class="i-burst"></div><div class="i-sparks"></div><div class="i-word"></div><p class="i-skip">點一下跳過</p></div>`;
-const scripts = r => `<script src="${r}js/data.js"></script>\n<script src="${r}js/themes.js"></script>\n<script src="${r}js/page.js"></script>`;
+const scripts = (r, id) => `<script src="${r}js/data.js"></script>\n<script src="${r}js/videos.js"></script>\n<script src="${r}js/core.js"></script>\n<script src="${r}js/${id}.js"></script>`;
 
 for (const p of D.people) {
   fs.mkdirSync(path.join(root, p.id), { recursive: true });
-  const html = `${head({ title: p.pageTitle || p.name, desc: p.ogDescription || "", image: p.photo, url: p.id + "/", theme: color[p.theme] || "#0b0906", root: "../" })}
+  const html = `${head({ title: p.pageTitle || p.name, desc: p.ogDescription || "", image: p.photo, url: p.id + "/", theme: color[p.id] || "#0b0906", root: "../", id: p.id })}
 <!-- 這個檔案由 tools/build_pages.js 產生；內容請改 js/data.js -->
-<body class="intro-on theme-${p.theme}" data-person="${p.id}" data-root="../">
+<body class="intro-on p-${p.id}" data-person="${p.id}" data-root="../">
 ${INTRO}
-<div class="scene" aria-hidden="true"></div>
-<main class="wrap" id="app"></main>
-<div class="overlay" aria-hidden="true"></div>
-${scripts("../")}
+<main id="app"></main>
+${scripts("../", p.id)}
 </body>
 </html>
 `;
   fs.writeFileSync(path.join(root, p.id, "index.html"), html);
   console.log("wrote", p.id + "/index.html");
 }
-fs.writeFileSync(path.join(root, "index.html"), `${head({ title: D.brand.sub, desc: "阿聖聊交易、老承、交易變色龍、Lucas 的連結頁", image: D.brand.avatar, url: "", theme: "#0b0906", root: "" })}
+fs.writeFileSync(path.join(root, "index.html"), `${head({ title: D.brand.sub, desc: "阿聖聊交易、老承、交易變色龍、Lucas 的連結頁", image: D.brand.avatar, url: "", theme: "#0b0906", root: "", id: "hub" })}
 <!-- 這個檔案由 tools/build_pages.js 產生 -->
-<body data-hub>
-<main class="wrap" id="app"></main>
-${scripts("")}
+<body class="hub-body" data-hub>
+<main class="hub" id="app"></main>
+${scripts("", "hub")}
 </body>
 </html>
 `);
