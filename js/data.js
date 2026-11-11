@@ -1,6 +1,9 @@
 /*
   OX 連結頁 v2 的所有內容資料。
-  要改連結、人名、主業、照片，只改這個檔案就好，不用動 index.html 或 app.js。
+  四位創作者各有一個專屬連結頁：/sheng/、/cheng/、/chameleon/、/lucas/（id 就是網址路徑）。
+  要改連結、人名、主業、照片，只改這個檔案。
+  改了 pageTitle 或 ogDescription（分享預覽用）之後，跑一次 node tools/build_pages.js 重新產生四個 index.html 的 <head>。
+  路徑一律寫相對於 repo 根目錄（assets/...），子頁面會自動補 ../。
 
   照片：放在 assets/img/，photo 填檔名路徑；留空字串 "" 會顯示「照片待提供」佔位。
   theme：卡片背景風格（已定案）。"snr" 暗紅交易室、"mono" 冷調黑灰白光、"jungle" 叢林霓虹變色龍、"night" 紫金夜景。
@@ -12,18 +15,11 @@
 window.OX_DATA = {
   brand: {
     name: "Snsheng",
-    sub: "OX.Trading 媒體頻道",
+    sub: "OX.Trading 創作者",
     avatar: "assets/img/avatars/snsheng.png"  // 原站 avatar.jpg 裁成圓形
   },
 
-  // 四頁規劃。目前只有第一頁做好，其他頁 ready: false 會顯示「即將推出」。
-  pages: [
-    { id: "media", label: "媒體頻道", ready: true },
-    { id: "p2", label: "第二頁", ready: false },
-    { id: "p3", label: "第三頁", ready: false },
-    { id: "p4", label: "第四頁", ready: false }
-  ],
-
+  // 以下三組（LINE 官方、LINE 社群、OX 工具）四個人的頁面都會放
   // LINE 官方帳號（最大、最明顯的一格）
   lineOfficial: {
     title: "LINE 官方帳號",
@@ -51,6 +47,8 @@ window.OX_DATA = {
   people: [
     {
       id: "sheng",
+      pageTitle: "阿聖聊交易｜加密貨幣技術分析",
+      ogDescription: "阿聖聊交易的 YouTube、Instagram、Threads。ICT、SNR 支撐壓力交易分享，LINE 點擊領取免費教材。",
       name: "阿聖聊交易",
       role: "加密貨幣技術分析",
       handle: "@shengtrader_snr",
@@ -69,6 +67,8 @@ window.OX_DATA = {
     },
     {
       id: "cheng",
+      pageTitle: "老承｜台股解盤與產業分析",
+      ogDescription: "老承的 YouTube、Instagram、Threads。台股解盤與產業分析，LINE 點擊領取免費教材。",
       name: "老承",
       role: "台股解盤與產業分析",
       handle: "@Cryptocheng",
@@ -87,6 +87,8 @@ window.OX_DATA = {
     },
     {
       id: "chameleon",
+      pageTitle: "交易變色龍",
+      ogDescription: "交易變色龍的 YouTube、Instagram、Threads，LINE 點擊領取免費教材，加入 OX.Trading 社群。",
       name: "交易變色龍",
       role: "",            // 主業未驗證，頁面上不寫主業
       handle: "@kampbel1",
@@ -106,6 +108,8 @@ window.OX_DATA = {
     },
     {
       id: "lucas",
+      pageTitle: "Lucas",
+      ogDescription: "Lucas 的 Instagram、Threads，LINE 點擊領取免費教材，加入 OX.Trading 社群。",
       name: "Lucas",
       role: "",            // 主業未驗證，頁面上不寫主業
       handle: "@gorani.___",
