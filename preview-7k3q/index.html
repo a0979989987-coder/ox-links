@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>OX Trading 會員｜樣張</title>
+<title>OX Trading 會員</title>
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#04060d">
 <link rel="icon" type="image/png" href="../assets/img/icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;900&family=Noto+Serif+TC:wght@500;700;900&family=EB+Garamond:ital,wght@1,500&family=Oswald:wght@500;700&family=JetBrains+Mono:wght@500&family=Fredoka:wght@600;700&family=Bebas+Neue&family=Yellowtail&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;900&family=Noto+Serif+TC:wght@500;700;900&family=EB+Garamond:ital,wght@1,500&family=JetBrains+Mono:wght@500&family=Fredoka:wght@600&family=Bebas+Neue&family=Yellowtail&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../home/home.css">
 </head>
-<body class="ox-home" data-root="../" data-hero="a" data-preview="1">
+<body class="ox-home" data-root="../">
 <canvas id="fx" aria-hidden="true"></canvas>
 
 <header class="oh-top">
@@ -27,27 +27,22 @@
 </header>
 
 <main id="top">
-  <!-- 第一頁：宇宙。三個格子一進來就能點，不等任何動畫 -->
+  <!-- 第一頁：宇宙。黑卡和 LINE 兩格一進來就能點，不等任何動畫 -->
   <section class="oh-hero" aria-labelledby="oh-title">
     <h1 class="oh-title" id="oh-title"><span>歡迎加入</span> OX Trading 會員</h1>
 
     <button type="button" class="oh-join" data-join aria-label="註冊成為 OX 會員，開始註冊">
-      <span class="oh-join-face">
-        <span class="oh-join-rim" aria-hidden="true"></span>
-        <span class="oh-join-sheen" aria-hidden="true"></span>
-        <span class="oh-join-card">
-          <span class="oh-join-rim" aria-hidden="true"></span>
-          <span class="oh-join-sheen" aria-hidden="true"></span>
-          <span class="oh-join-wm" aria-hidden="true" data-logo-line></span>
-          <span class="oh-join-head"><span class="oh-logo" data-logo></span><em>OX Trading</em><i>MEMBER</i></span>
-          <strong class="oh-join-title">註冊成為 OX 會員</strong>
-          <span class="oh-join-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        </span>
-        <span class="oh-join-info">
-          <span class="oh-join-perks" data-perks><span>進階教材</span><span>OX 加密進階功能</span></span>
-          <span class="oh-join-rule"><b data-rule>完成 KYC、淨入金滿 100 USDT</b><small data-rule-note>系統根據交易所後台達標發送</small></span>
-          <span class="oh-join-go"><span>開始註冊</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-        </span>
+      <span class="oh-card" data-card>
+        <span class="oh-card-art" aria-hidden="true" data-art></span>
+        <span class="oh-card-sheen" aria-hidden="true"></span>
+        <span class="oh-card-top"><span class="oh-logo" data-logo></span><em>OX Trading</em><i>MEMBER</i></span>
+        <span class="oh-card-no" aria-hidden="true">NO. •••• ••••</span>
+        <strong class="oh-card-title">註冊成為 OX 會員</strong>
+        <span class="oh-card-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </span>
+      <span class="oh-join-info">
+        <span class="oh-join-perks" data-perks><span>進階教材</span><span>OX 加密進階功能</span></span>
+        <span class="oh-join-rule"><b data-rule>完成 KYC、淨入金滿 100 USDT</b><small data-rule-note>系統根據交易所後台達標發送</small></span>
       </span>
     </button>
 
@@ -65,14 +60,25 @@
     <div class="oh-tlist" data-teachers></div>
   </section>
 
-  <section class="oh-next" id="next">
-    <p>樣張到這裡。</p>
-    <p>再往下會是 K 線轉場，接白金亮底的作品和交易法介紹，等這一版方向確定後做。</p>
+  <!-- K 線轉場：黑底 → 白金 -->
+  <section class="oh-kbridge" id="kbridge" aria-hidden="true">
+    <div class="oh-kstage"><canvas id="kchart"></canvas></div>
   </section>
+
+  <!-- 第三頁：白金。作品、交易法，最後再放一次黑卡和 LINE 兩格 -->
+  <section class="oh-sec oh-light" id="works" data-works></section>
+  <section class="oh-sec oh-light" id="methods" data-methods></section>
+  <section class="oh-end oh-light" id="end" data-end></section>
 </main>
 
+<canvas id="kglass" aria-hidden="true"></canvas>
+
 <script src="../home/data.js"></script>
+<script src="../home/btc.js"></script>
+<script src="../js/videos.js"></script>
 <script src="../home/app.js"></script>
+<script src="../home/kline.js"></script>
+<script src="../home/join.js"></script>
 <script src="../home/fx.js"></script>
 </body>
 </html>

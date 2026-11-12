@@ -1,10 +1,11 @@
-/* OX 會員首頁的粒子引擎：星系、五股光纏成一條往下流再落成五張老師卡、手指撥星塵、整個星系被吸進大格子。
+/* OX 會員首頁的粒子引擎：星系、五股光纏成一條往下流再落成五張老師卡、手指撥星塵、整個星系被吸進黑卡；
+   背景跟著三個世界換：宇宙 → 黑底白光 → 白金（白金那一頁只留金色的微塵）。
    純 WebGL，不用 three。粒子怎麼動全部在頂點著色器裡算，手機也跑得動上萬顆。
-   對外：window.OXFX = { ok, p1, setHero(v), suck(on), pause(b), burst() } */
+   對外：window.OXFX = { ok, p1, suck(on), pause(b), burst(), setWorld(light, instant), relayout() } */
 (function () {
   "use strict";
   const canvas = document.getElementById("fx");
-  const FX = (window.OXFX = { ok: false, p1: 0, setHero() {}, suck() { return Promise.resolve(); }, pause() {}, burst() {} });
+  const FX = (window.OXFX = { ok: false, p1: 0, suck() { return Promise.resolve(); }, pause() {}, burst() {}, setWorld() {}, relayout() {} });
   if (!canvas) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let gl = null;
@@ -28,8 +29,7 @@
   const phone = Math.min(innerWidth, innerHeight) <= 760;
   const NG = +qs.get("n") || (phone ? 22000 : 46000);      // 星系
   const ND = phone ? 2400 : 5000;                           // 滿畫面的遠星
-  const NF = phone ? 2800 : 4400;                           // 大格子的粒子光框（樣張 B）
-  const N = NG + ND + NF, STRIDE = 16;
+  const N = NG + ND, STRIDE = 16;
   const buf = new Float32Array(N * STRIDE);
   const put = (i, a0, a1, a2, a3) => { const o = i * STRIDE; buf.set(a0, o); buf.set(a1, o + 4); buf.set(a2, o + 8); buf.set(a3, o + 12); };
 
@@ -77,20 +77,15 @@
       const c = pick([[1, 1, 1], [0.8, 0.87, 1], [1, 0.9, 0.7], [0.96, 0.8, 0.45]]), big = rand() < 0.05;
       put(i, [rand() * 2 - 1, rand() * 2 - 1, -62 + rand() * 78, rand() * 6.2832], [c[0], c[1], c[2], 0.2 + rand() * 0.5], [(big ? 0.2 : 0.06) + rand() * 0.09, rand(), rand(), rand()], [0, 0, 0, 2]);
     }
-    for (let i = NG + ND; i < N; i++) {    // 光框：繞著大格子跑。a0＝(位置, 往外偏多少, 速度, 相位)
-      const t = rand(), c = t < 0.62 ? pick(outerGold) : t < 0.8 ? [1, 0.97, 0.9] : pick(outerBlue);
-      const lane = Math.abs(gauss()) * 0.16 + (rand() < 0.1 ? rand() * 0.9 : 0);
-      put(i, [rand(), lane, (0.006 + rand() * 0.02) * (rand() < 0.85 ? 1 : -0.6), rand() * 6.2832], [c[0], c[1], c[2], 0.45 + rand() * 0.55], [0.07 + rand() * 0.12 + (rand() < 0.04 ? 0.18 : 0), rand(), rand(), rand()], [0, 0, 0, 3]);
-    }
   })();
 
   // ---------- 著色器 ----------
   const VS = `
   precision highp float;
   attribute vec4 a0, a1, a2, a3;
-  uniform float uTime, uP1, uSuck, uPx, uFrame, uScroll, uMaxPt, uBloom, uTileR;
+  uniform float uTime, uP1, uSuck, uPx, uScroll, uMaxPt, uBloom, uLight;
   uniform vec2 uView, uWH;
-  uniform vec4 uGal, uTile;
+  uniform vec4 uGal;
   uniform vec4 uCard[5];
   uniform vec3 uCol[5];
   uniform float uRad[5];
@@ -176,19 +171,14 @@
         al *= 1.0 + uBloom * 1.4 + pull * (1.0 - pull) * 7.0;
         size *= 1.0 + pull * (1.0 - pull) * 1.6;
       }
-    } else if (kind < 2.5) {                                   // 遠星：滑動時有視差，會眨
+    } else {                                                   // 遠星：滑動時有視差，會眨；到了白金那一頁變成金色的微塵
       float z = a0.z, k = (CAMZ - z) / CAMZ * 1.12;
       float span = uWH.y * 0.5 * k;
       float yy = mod(a0.y * span + uScroll * (0.22 + 0.5 * a2.y) + span, 2.0 * span) - span;
       p = vec3(a0.x * uWH.x * 0.5 * k, yy, z);
       al *= 0.5 + 0.5 * sin(uTime * (0.5 + a2.z * 1.5) + a0.w);
-    } else {                                                   // 光框：繞著大格子跑，兩道亮段在追
-      float u = fract(a0.x + uTime * a0.z);
-      float shrink = 1.0 - 0.55 * uSuck * uSuck;
-      p = vec3(uTile.xy + rr(u, (uTile.zw + a0.y) * shrink, (uTileR + a0.y) * shrink), 0.3 + a0.y * 3.0);
-      float head = pow(fract(u * 2.0 - uTime * 0.085), 5.0);
-      al *= uFrame * (0.2 + 1.5 * head) / (1.0 + a0.y * 3.0);
-      size *= 0.75 + 1.3 * head;
+      col = mix(col, mix(vec3(0.76, 0.6, 0.24), vec3(0.55, 0.44, 0.18), a2.w), uLight);
+      al *= mix(1.0, 0.75, uLight); size *= mix(1.0, 1.5, uLight);
     }
     // 手指把星塵撥開
     vec2 dp = p.xy - uPtr.xy;
@@ -244,7 +234,7 @@
   }`;
   // 鋪到畫面上：宇宙 → 黑底白光
   const OUT_FS = HP + `
-  uniform sampler2D uTex; uniform vec2 uRes; uniform float uDark, uTime, uFlash; uniform vec3 uT;
+  uniform sampler2D uTex; uniform vec2 uRes; uniform float uDark, uTime, uFlash, uLight; uniform vec3 uT;
   float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
   void main() {
     vec2 uv = gl_FragCoord.xy / uRes;
@@ -256,6 +246,12 @@
     c = mix(c, k, uDark);
     vec2 f = (gl_FragCoord.xy - uT.xy) / uT.z;
     c += vec3(1.0, 0.9, 0.72) * uFlash * exp(-dot(f, f) * 1.6);
+    // 白金：米白往下帶一點金，兩團很淡的金光慢慢移
+    vec3 L = mix(vec3(0.953, 0.925, 0.851), vec3(0.988, 0.976, 0.949), uv.y);
+    vec2 as = vec2(uRes.x / uRes.y, 1.0);
+    vec2 g1 = (uv - vec2(0.16 + 0.05 * sin(uTime * 0.11), 0.82)) * as, g2 = (uv - vec2(0.88, 0.22 + 0.04 * cos(uTime * 0.09))) * as;
+    L = mix(L, vec3(0.992, 0.905, 0.69), 0.26 * exp(-dot(g1, g1) * 2.6) + 0.2 * exp(-dot(g2, g2) * 3.4));
+    c = mix(c, L, uLight);
     c += (hash(gl_FragCoord.xy + fract(uTime) * 61.0) - 0.5) / 255.0;
     gl_FragColor = vec4(c, 1.0);
   }`;
@@ -304,7 +300,7 @@
   // Safari／iPhone 上不在中途改畫布解析度（Windows 版 WebKit 改完整片變黑，真機不賭），跑太慢只減粒子
   const ua = navigator.userAgent, webkitOnly = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|Android/.test(ua);
   let W = 1, H = 1, dpr = 1, dprCap = fixedDpr || (phone ? 2 : 1.75), Ww = 1, Hw = HW0, pxU = 1, quality = 1;
-  let cardEls = [], tileEl = null, teachTop = 1e9, tileR = 1;
+  let cardEls = [], tileEl = null, teachTop = 1e9;
   const radFlat = new Float32Array(5);
   const radiusOf = el => parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
   function resize() {
@@ -319,24 +315,23 @@
   }
   // 大格子換樣式、字體載好之後，重新量一次位置和圓角
   function relayout() {
-    tileEl = document.querySelector(".oh-join-face");
+    tileEl = document.querySelector(".oh-hero .oh-card");
     cardEls = Array.from(document.querySelectorAll(".oh-tc")).slice(0, 5);
     const teach = document.getElementById("teachers");
     teachTop = teach ? teach.getBoundingClientRect().top + (window.scrollY || 0) : 1e9;
-    if (tileEl) tileR = radiusOf(tileEl) / pxU;
     cardEls.forEach((el, i) => { radFlat[i] = radiusOf(el) / pxU; });
   }
   const toWorld = r => [((r.left + r.width / 2) / W - 0.5) * Ww, (0.5 - (r.top + r.height / 2) / H) * Hw, r.width / W * Ww / 2, r.height / H * Hw / 2];
 
   // ---------- 狀態 ----------
-  const S = { time: 0, p1: 0, suck: reduce ? 0 : 1, suckTo: 0, frame: 0, frameTo: 0, bloom: 0, flash: 0, ptr: [0, 0, 0], ptrTo: 0, tilt: 0, paused: false, hidden: false, hold: -1 };
+  const S = { time: 0, p1: 0, suck: reduce ? 0 : 1, suckTo: 0, light: 0, lightTo: 0, bloom: 0, flash: 0, ptr: [0, 0, 0], ptrTo: 0, tilt: 0, paused: false, hidden: false, hold: -1 };
   const cols = (D ? D.teachers : []).slice(0, 5).map(t => hex3(t.color));
   while (cols.length < 5) cols.push([1, 0.85, 0.5]);
   const colFlat = new Float32Array(15); cols.forEach((c, i) => colFlat.set(c, i * 3));
   const cardFlat = new Float32Array(20), tileW = [0, 0, 6, 4], gal = [0, 0, 20, -0.62];
   let suckRes = null, bgTick = 0, last = performance.now(), slow = 0, frames = 0, raf = 0;
 
-  FX.setHero = v => { S.frameTo = v === "b" ? 1 : 0; requestAnimationFrame(relayout); };
+  FX.setWorld = (light, instant) => { S.lightTo = light ? 1 : 0; if (instant || reduce) S.light = S.lightTo; };
   FX.suck = on => new Promise(res => { S.suckTo = on ? 1 : 0; if (reduce) { S.suck = S.suckTo; res(); return; } if (suckRes) suckRes(); suckRes = res; });
   FX.pause = b => { S.paused = !!b; if (!b) { last = performance.now(); if (!raf) raf = requestAnimationFrame(frame); } };
   FX.burst = () => { S.bloom = 1; };
@@ -378,7 +373,7 @@
     if (S.hold >= 0) S.suck = S.suckTo = S.hold;      // 檢查用：把被吸的過程停在某一格
     S.suck += (S.suckTo - S.suck) * (1 - Math.exp(-dt * (S.suckTo ? 4.2 : 3.4)));
     if (suckRes && Math.abs(S.suck - S.suckTo) < 0.03) { S.suck = S.suckTo; if (S.suckTo) S.flash = 1; const r = suckRes; suckRes = null; r(); }
-    S.frame += (S.frameTo - S.frame) * (1 - Math.exp(-dt * 5));
+    S.light += (S.lightTo - S.light) * (1 - Math.exp(-dt * 9));
     if (now - ptrAt > 700) S.ptrTo = 0;                // 游標停住就放手，星塵流回來
     S.ptr[2] += (S.ptrTo - S.ptr[2]) * (1 - Math.exp(-dt * 7));
     S.bloom *= Math.exp(-dt * 2.6); S.flash *= Math.exp(-dt * 3.2);
@@ -399,7 +394,7 @@
     const cw = canvas.width, ch = canvas.height;
     gl.disable(gl.BLEND);
     // 1. 星雲底圖（黑底那一段就不用畫了）
-    if (S.p1 < 0.995 && (bgTick++ % 2 === 0)) {
+    if (S.p1 < 0.995 && S.light < 0.995 && (bgTick++ % 2 === 0)) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo); gl.viewport(0, 0, fbW, fbH);
       gl.useProgram(NEB.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(qLocN); gl.vertexAttribPointer(qLocN, 2, gl.FLOAT, false, 0, 0);
       const sx = fbW / W, sy = fbH / H;
@@ -414,27 +409,27 @@
     gl.useProgram(OUT.p); gl.bindBuffer(gl.ARRAY_BUFFER, quad); gl.enableVertexAttribArray(qLocO); gl.vertexAttribPointer(qLocO, 2, gl.FLOAT, false, 0, 0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(OUT.u.uTex, 0);
     gl.uniform2f(OUT.u.uRes, cw, ch); gl.uniform1f(OUT.u.uTime, S.time);
-    gl.uniform1f(OUT.u.uDark, clamp((S.p1 - 0.1) / 0.42, 0, 1)); gl.uniform1f(OUT.u.uFlash, S.flash);
+    gl.uniform1f(OUT.u.uDark, clamp((S.p1 - 0.1) / 0.42, 0, 1)); gl.uniform1f(OUT.u.uFlash, S.flash); gl.uniform1f(OUT.u.uLight, S.light);
     gl.uniform3f(OUT.u.uT, (tileW[0] / Ww + 0.5) * cw, (tileW[1] / Hw + 0.5) * ch, Math.max(tileW[2], tileW[3]) * pxU * dpr * 1.5);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    // 3. 粒子（加亮）
-    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    // 3. 粒子：暗的世界用加亮，白金用一般的疊法（亮底上加亮看不到）
+    const lit = S.light > 0.5;
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, lit ? gl.ONE_MINUS_SRC_ALPHA : gl.ONE);
     gl.useProgram(P.p); gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     for (let i = 0; i < 4; i++) { if (aLoc[i] < 0) continue; gl.enableVertexAttribArray(aLoc[i]); gl.vertexAttribPointer(aLoc[i], 4, gl.FLOAT, false, STRIDE * 4, i * 16); }
-    gl.uniform1f(P.u.uTime, S.time); gl.uniform1f(P.u.uP1, S.p1); gl.uniform1f(P.u.uSuck, S.suck); gl.uniform1f(P.u.uFrame, S.frame * (1 - clamp(S.p1 * 3, 0, 1)));
-    gl.uniform1f(P.u.uPx, pxU * dpr); gl.uniform1f(P.u.uScroll, y / pxU); gl.uniform1f(P.u.uMaxPt, maxPt); gl.uniform1f(P.u.uBloom, S.bloom); gl.uniform1f(P.u.uTileR, tileR);
+    gl.uniform1f(P.u.uTime, S.time); gl.uniform1f(P.u.uP1, S.p1); gl.uniform1f(P.u.uSuck, S.suck); gl.uniform1f(P.u.uLight, S.light);
+    gl.uniform1f(P.u.uPx, pxU * dpr); gl.uniform1f(P.u.uScroll, y / pxU); gl.uniform1f(P.u.uMaxPt, maxPt); gl.uniform1f(P.u.uBloom, S.bloom);
     gl.uniform2f(P.u.uView, F * H / W, F); gl.uniform2f(P.u.uWH, Ww, Hw);
-    gl.uniform4f(P.u.uGal, gal[0], gal[1], gal[2], gal[3]); gl.uniform4f(P.u.uTile, tileW[0], tileW[1], tileW[2], tileW[3]);
+    gl.uniform4f(P.u.uGal, gal[0], gal[1], gal[2], gal[3]);
     gl.uniform4fv(P.u.uCard, cardFlat); gl.uniform3fv(P.u.uCol, colFlat); gl.uniform1fv(P.u.uRad, radFlat);
     gl.uniform3f(P.u.uPtr, S.ptr[0], S.ptr[1], S.ptr[2]);
-    gl.drawArrays(gl.POINTS, 0, Math.floor(NG * quality));
+    if (!lit) gl.drawArrays(gl.POINTS, 0, Math.floor(NG * quality));
     gl.drawArrays(gl.POINTS, NG, ND);
-    if (S.frame > 0.01) gl.drawArrays(gl.POINTS, NG + ND, NF);
   }
 
   resize();
+  if (document.body.classList.contains("w-light")) S.light = S.lightTo = 1;      // 重新整理時已經停在白金那一頁
   FX.ok = true; FX._s = S;
-  FX.setHero(document.body.dataset.hero);
   document.documentElement.classList.add("has-gl");
   raf = requestAnimationFrame(frame);
 })();
