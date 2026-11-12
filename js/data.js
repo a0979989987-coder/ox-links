@@ -25,7 +25,7 @@ window.OX_DATA = {
     title: "LINE 官方帳號",
     desc: "加入好友，免費教材直接傳給你",
     button: "LINE 點擊領取免費教材",
-    url: "https://lin.ee/TAWUaY2"
+    url: "https://lin.ee/SJ4F4Jq"
   },
 
   // LINE 社群（沿用原站 https://a0979989987-coder.github.io/snsheng/ 的社群連結）
