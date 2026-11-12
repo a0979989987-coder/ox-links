@@ -32,7 +32,8 @@
   // LINE：白色對話框，字用綠色鏤空
   const lineIcon = (ink = "#06c755") => `<svg viewBox="0 0 24 24" aria-hidden="true" class="ln"><path fill="#fff" stroke="none" d="M12 3.6c-5 0-9.1 3.3-9.1 7.4 0 3.6 3.2 6.7 7.6 7.3.3.1.7.2.8.5.1.2.1.6 0 .9l-.1.8c0 .2-.2.9.8.5s5.4-3.2 7.4-5.4c1.4-1.5 2-3 2-4.6 0-4.1-4.1-7.4-9.4-7.4Z"/><g fill="none" stroke="${ink}" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"><path d="M6.6 9.2v3.5h2"/><path d="M10.1 9.2v3.5"/><path d="M11.7 12.7V9.2l2.6 3.5V9.2"/><path d="M17.6 9.2h-1.9v3.5h1.9M15.7 10.95h1.8"/></g></svg>`;
   const chatIcon = `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${I.chat}</svg>`;
-  const logoSVG = () => `<svg viewBox="${D.logo.viewBox}" aria-hidden="true"><path fill="${D.logo.dark}" d="${D.logo.d}"/><path fill="${D.logo.blue}" d="${D.logo.b}"/></svg>`;
+  // logo 直接用永盛給的那張圖（白底），不重畫；data.js 裡的向量外框只給黑卡的浮水印用
+  const logoSVG = () => `<img src="${esc(asset(D.logo.img))}" alt="" width="64" height="64">`;
   $$("[data-logo]").forEach(el => { el.innerHTML = logoSVG(); });
   $$("[data-logo-line]").forEach(el => { el.innerHTML = `<svg viewBox="${D.logo.viewBox}"><path d="${D.logo.d}"/><path d="${D.logo.b}"/></svg>`; });
 
