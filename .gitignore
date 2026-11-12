@@ -4,3 +4,5 @@ previews/*
 !previews/.gitkeep
 *.log
 __pycache__/
+
+_work/
