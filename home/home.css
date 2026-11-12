@@ -274,7 +274,8 @@ body.dr-open .oh-dcta, body.dr-open .oh-dsec, body.dr-open .oh-di, body.dr-open 
 .oh-portal { position: fixed; z-index: 390; background: #0a0b0d; pointer-events: none; box-shadow: 0 0 60px rgba(255, 236, 190, .55), 0 0 0 1px rgba(255, 236, 190, .6); }
 .oh-flow { position: fixed; inset: 0; z-index: 400; display: flex; flex-direction: column; color: #f0ede5; background: radial-gradient(90% 40% at 50% 0%, rgba(255, 255, 255, .06), transparent 70%), #0a0b0d; opacity: 0; visibility: hidden; transition: opacity .32s, visibility 0s .32s; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .oh-flow.on { opacity: 1; visibility: visible; transition: opacity .32s; }
-.oh-fin { width: 100%; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 20px calc(env(safe-area-inset-bottom, 0px) + 34px); }
+.oh-fbg { position: fixed; left: 0; top: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.oh-fin { position: relative; z-index: 1; width: 100%; max-width: 520px; margin: 0 auto; padding: calc(env(safe-area-inset-top, 0px) + 10px) 20px calc(env(safe-area-inset-bottom, 0px) + 34px); }
 .oh-fhead { display: grid; grid-template-columns: 36px 1fr 36px; align-items: center; gap: 10px; }
 .oh-fhead b { text-align: center; font: 600 15.5px/1 var(--font); }
 .oh-steps { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 20px; }

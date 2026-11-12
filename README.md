@@ -123,7 +123,7 @@ home/fx.js      粒子引擎（純 WebGL）：星系、五股光落成五張卡�
 home/home.css   樣式：前兩頁照 OX App 的黑色白光，第三頁白金；粒子金色，點綴用 logo 的藍
 home/img/       logo（使用者給的原圖）、Bitget 和 BingX 官方圖示
 home/media/     三個 OX 工具的手機截圖、八支 K 線故事片的 6 秒無聲預覽
-backend/        Google 試算表後台（Apps Script）：Code.gs、設定說明.md、本機測試
+backend/        Google 試算表後台（Apps Script）：Code.gs、設定說明.md、本機測試。只放在使用者電腦，沒有進這個倉庫
 preview-7k3q/   預覽入口
 ```
 

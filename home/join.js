@@ -23,6 +23,35 @@
   </div></div>`);
   const flow = $("#oh-flow"), pane = $("[data-fpane]", flow), stepsEl = $("[data-fsteps]", flow), titleEl = $("[data-ftitle]", flow);
 
+  // ---------- 流程頁的背景：慢慢往上飄的金色微塵；送出成功時從申請卡後面爆開一圈 ----------
+  const fbg = document.createElement("canvas"); fbg.className = "oh-fbg"; fbg.setAttribute("aria-hidden", "true"); flow.insertBefore(fbg, flow.firstChild);
+  const dust = [], sparks = []; let fraf = 0, flast = 0;
+  const TINT = ["227,196,126", "255,241,201", "227,196,126", "35,166,234"];
+  function fbgLoop(now) {
+    fraf = 0; if (!B.classList.contains("flow-open") || document.hidden) return;
+    const dt = Math.min(.05, (now - flast) / 1000 || 0); flast = now;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2), W = innerWidth, H = innerHeight;
+    if (fbg.width !== Math.round(W * dpr) || fbg.height !== Math.round(H * dpr)) { fbg.width = Math.round(W * dpr); fbg.height = Math.round(H * dpr); }
+    const g = fbg.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); g.globalCompositeOperation = "lighter";
+    while (dust.length < 44) dust.push({ x: Math.random() * W, y: Math.random() * H, vy: 5 + Math.random() * 14, r: .6 + Math.random() * 1.3, a: .12 + Math.random() * .34, ph: Math.random() * 6, c: TINT[Math.floor(Math.random() * TINT.length)] });
+    for (const d of dust) {
+      d.y -= d.vy * dt; d.x += Math.sin(now / 1400 + d.ph) * 4 * dt; if (d.y < -6) { d.y = H + 6; d.x = Math.random() * W; }
+      g.fillStyle = `rgba(${d.c},${(d.a * (.6 + .4 * Math.sin(now / 900 + d.ph))).toFixed(3)})`; g.beginPath(); g.arc(d.x, d.y, d.r, 0, 6.2832); g.fill();
+    }
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i]; s.t += dt; if (s.t > s.l) { sparks.splice(i, 1); continue; }
+      s.vy += 240 * dt; s.vx *= 1 - 1.2 * dt; s.x += s.vx * dt; s.y += s.vy * dt;
+      g.fillStyle = `rgba(${s.c},${(1 - s.t / s.l).toFixed(3)})`; g.beginPath(); g.arc(s.x, s.y, s.r, 0, 6.2832); g.fill();
+    }
+    g.globalCompositeOperation = "source-over";
+    fraf = requestAnimationFrame(fbgLoop);
+  }
+  const fbgStart = () => { if (!reduce && !fraf) { flast = performance.now(); fraf = requestAnimationFrame(fbgLoop); } };
+  function burst(el) {
+    if (reduce || !el) return; const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    for (let i = 0; i < 150; i++) { const a = Math.random() * 6.2832, sp = 90 + Math.random() * 460; sparks.push({ x: cx + Math.cos(a) * r.width * .3, y: cy + Math.sin(a) * r.height * .3, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 140, r: .8 + Math.random() * 2.2, t: 0, l: .9 + Math.random() * 1.3, c: TINT[Math.floor(Math.random() * TINT.length)] }); }
+  }
+
   // ---------- 小零件 ----------
   const exNames = t => Object.keys(t.join).filter(k => EX[k]);
   const uidHTML = ids => ids.map(id => { const e = EX[id]; return `<div class="oh-uid"><h4><img src="${esc(asset(e.logo))}" alt="">${esc(e.name)}</h4><ol>${e.uid.map(s => `<li>${esc(s)}</li>`).join("")}</ol>
@@ -64,7 +93,7 @@
           <div class="oh-fld"><div class="lb">交易經驗<u>選填</u></div>${chips("exp", F.exp, false)}</div>
           <div class="oh-fld"><div class="lb">最想學什麼<u>選填，可複選</u></div>${chips("learn", F.learn, true)}</div>
           <label class="oh-check" data-f="agree"><input type="checkbox" name="agree"><i>${icon("check")}</i><span>${esc(F.agree)}</span></label>
-          <label class="oh-hp" aria-hidden="true">請不要填這一格<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          <label class="oh-hp" aria-hidden="true">請不要填這一格<input type="text" name="ox-extra" tabindex="-1" autocomplete="off" inputmode="none"></label>
           <button type="submit" class="oh-btn gold">送出${icon("arrow")}</button>
           <p class="oh-priv">${esc(F.privacy)}</p>
         </form>` };
@@ -82,7 +111,7 @@
         <ul class="oh-conds"><li class="ok"><i>${icon("check")}</i>${esc(D.member.conds[0])}<u>已填 UID</u></li><li><i>2</i>${esc(D.member.conds[1])}<u>系統核對</u></li><li><i>3</i>${esc(D.member.conds[2])}<u>系統核對</u></li></ul>
         <p class="oh-say">${esc(D.member.ruleNote)}<small>達標後，進階教材會寄到你填的信箱。</small></p>
         ${a.demo ? `<p class="oh-demo">樣張：後台還沒接上，這筆資料沒有送出去，只存在你這支手機裡。接好之後這行字會消失。</p>` : ""}
-        ${a.dup ? `<p class="oh-warn" style="text-align:left">這個 UID 之前送過了，資料照第一次的留著。要改信箱，到 LINE 官方跟我們說。</p>` : ""}
+        ${a.dup ? `<p class="oh-warn" style="text-align:left">這個 UID 之前送過了，信箱照第一次填的留著。要改信箱，到 LINE 官方跟我們說。</p>` : ""}
         ${lineBtns()}<p class="oh-priv" style="margin-top:16px">有問題到 LINE 官方問，把這張卡截圖傳過來。${a.id && !a.demo ? `申請編號 ${esc(a.id)}` : ""}</p>
         <button type="button" class="oh-btn ghost" data-again>換一個帳號重新申請</button></div>` };
     },
@@ -113,7 +142,8 @@
   const ORDER = { pick: 1, ex: 2, uid: 3, done: 4, guide: 0, faq: 0 };
   let cur = null, depth = 0;
   function render(r, back) {
-    if (r.t) { sel.teacher = r.t.id; if (!sel.picked) sel.picked = r.t.id; keep(); }
+    // 從老師的專屬連結直接進來的，「訪客選的」就記那位老師；之前在這支手機選過別人的不算。選「都不是」走到預設老師的照舊記「都不是」
+    if (r.t) { sel.teacher = r.t.id; if (!(sel.picked === "none" && r.t.id === F.noneTeacher)) sel.picked = r.t.id; keep(); }
     const pg = PAGES[r.page](r.t);
     titleEl.textContent = pg.title;
     stepsEl.hidden = !pg.step;
@@ -122,7 +152,8 @@
     flow.scrollTop = 0; cur = r;
     $$("[data-card]", pane).forEach(watchCard);
     if (r.page === "uid") wireForm(r.t);
-    if (r.page === "done" && !back) setTimeout(() => SND.chime(), 250);
+    if (r.page === "done" && !back) setTimeout(() => { SND.chime(); burst($(".oh-mycard", pane)); }, 300);
+    fbgStart();
   }
   function go(hash, replace) {
     const r = parse(hash); if (!r) return;
@@ -229,10 +260,15 @@
       $('[data-f="agree"]', pane).classList.toggle("bad", !ag);
       if (!okU || !okE || !ag) { const bad = $(".bad", pane); bad && bad.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); SND.tick(300, .07); return; }
       const btn = $('button[type="submit"]', form), ids = exNames(t), ex = ids.includes(sel.exchange) ? sel.exchange : ids[0];
-      const data = { v: 1, teacher: t.id, picked: sel.picked || t.id, exchange: ex, uid: val("uid"), email: val("email").toLowerCase(), line: val("line"), name: val("name"), exp: picked("exp")[0] || "", learn: picked("learn"), agree: true, credential, hp: val("website"), ms: Date.now() - opened, page: location.origin + location.pathname, ua: navigator.userAgent.slice(0, 200) };
+      const data = { v: 1, teacher: t.id, picked: sel.picked || t.id, exchange: ex, uid: val("uid"), email: val("email").toLowerCase(), line: val("line"), name: val("name"), exp: picked("exp")[0] || "", learn: picked("learn"), agree: true, credential, hp: val("ox-extra"), ms: 0, page: location.origin + location.pathname, ua: navigator.userAgent.slice(0, 200) };
       btn.disabled = true; btn.classList.add("oh-sending"); btn.innerHTML = `送出中${icon("spin")}`;
+      // 後台把開不到 2.5 秒就送出的當成機器人，會回成功但不存。草稿自動帶回來的人可能按得很快，這裡等滿 3 秒再送
+      const early = 3000 - (Date.now() - opened); if (D.api && early > 0) await wait(early);
+      data.ms = Date.now() - opened;
       let res;
       try { res = await send(data); } catch (err) { res = { ok: false, msg: "送不出去，可能是網路斷了。等一下再按一次。" }; }
+      // 後台把這一筆當成機器人時會回成功，但編號流水號是 9 開頭，其實沒有存。多半是自動填入工具填了藏起來的那一格：清掉，請他再按一次
+      if (res && res.ok && /-9\d{3}$/.test(res.id || "")) { const hp = $('[name="ox-extra"]', pane); if (hp) hp.value = ""; res = { ok: false, msg: "這一筆沒有送成功，請再按一次送出。" }; }
       if (!res || !res.ok) { btn.disabled = false; btn.classList.remove("oh-sending"); btn.innerHTML = `送出${icon("arrow")}`; say((res && res.msg) || "送不出去，等一下再試一次。", 3600); SND.tick(300, .07); return; }
       store.set("ox-apply", { id: res.id || "", teacher: t.id, exchange: ex, uid4: data.uid.slice(-4), name: data.name, at: Date.now(), demo: !!res.demo, dup: !!res.dup }, true);
       store.set("ox-draft", null);

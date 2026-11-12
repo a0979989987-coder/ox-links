@@ -6,3 +6,6 @@ previews/*
 __pycache__/
 
 _work/
+
+# 後台程式只留在電腦上，要不要公開等使用者決定
+backend/
