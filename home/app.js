@@ -92,21 +92,18 @@
   sndBtn && sndBtn.addEventListener("click", () => { soundOn = !soundOn; localStorage.setItem("ox-sound", soundOn ? "on" : "off"); syncSnd(); say(soundOn ? "聲音開" : "聲音關"); if (soundOn) SND.tick(); });
 
   // ---------- 黑卡 ----------
-  // 卡面的金箔線：用 btc.js 那一段真的日線畫成細線 K 棒，頂那條線畫成虛線
-  function cardArt() {
-    const K = window.OXK; if (!K) return "";
-    const R = K.rows, n = R.length, W = 440, H = 150, lo = Math.min(...R.map(r => r[3])), hi = Math.max(...R.map(r => r[2]));
-    const y = p => +(H - 4 - (p - lo) / (hi - lo) * (H - 8)).toFixed(1), x = i => +(5 + i * (W - 10) / (n - 1)).toFixed(1);
-    let s = "";
-    R.forEach((r, i) => {
-      const up = r[4] >= r[1], top = Math.max(r[1], r[4]), bot = Math.min(r[1], r[4]), X = x(i);
-      s += `<path d="M${X} ${y(r[2])}V${y(r[3])}"/><rect x="${(X - 2.7).toFixed(1)}" y="${y(top)}" width="5.4" height="${Math.max(.8, y(bot) - y(top)).toFixed(1)}"${up ? "" : ' class="f"'}/>`;
-    });
-    const ty = y(R[K.top][2]);
-    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="oh-foil" gradientUnits="userSpaceOnUse" x1="0" y1="${H}" x2="${W}" y2="0"><stop offset="0" stop-color="#8d712e"/><stop offset=".55" stop-color="#e3c47e"/><stop offset="1" stop-color="#fff1c9"/></linearGradient></defs>
-      <g fill="none" stroke="url(#oh-foil)" stroke-width=".9"><path d="M${x(K.top)} ${ty}H${x(K.brk)}" stroke-dasharray="3 3" opacity=".8"/>${s}</g></svg>`;
+  // 卡面（11/13 定稿）：方塊卡面、logo 外形銀線、拉絲鈦嵌的大 logo、金斜邊。
+  // no＝會員編號（沒有就是點點）、name＝印在卡上的名字（沒有就寫「你的名字」）、since＝加入那年
+  function cardFace(o = {}) {
+    const dots = `<span class="oc-dots" aria-hidden="true">${"<b><i></i><i></i><i></i><i></i></b>".repeat(3)}</span>`;
+    return `<span class="oc-body"></span><span class="oc-lines"></span><span class="oc-light"></span>
+      <span class="oc-logo" aria-hidden="true"><i></i><img src="${esc(asset("home/img/card/eng.png"))}" alt=""></span><span class="oc-sheen"></span>
+      <span class="oc-bevel"></span><span class="oc-silver"></span>
+      <span class="oc-brand">OX TRADING</span><span class="oc-since"><small>SINCE</small><span class="oc-emb">${esc(o.since || new Date().getFullYear())}</span></span>
+      ${o.no ? `<span class="oc-no oc-emb">${esc(o.no)}</span>` : dots}
+      <span class="oc-name oc-emb${o.name && /^[A-Z .'-]+$/.test(o.name) ? "" : " zh"}">${esc(o.name || "你的名字")}</span>`;
   }
-  $$("[data-art]").forEach(el => { el.innerHTML = cardArt(); });
+  $$("[data-face]").forEach(el => { el.innerHTML = cardFace(); });
   // 卡片跟著手指傾斜；沒人碰的時候自己慢慢晃，流光跟著角度走
   const cards = new Map();
   function watchCard(el) {
@@ -280,5 +277,5 @@
   });
   addEventListener("keydown", e => { if (e.key === "Escape" && B.classList.contains("dr-open")) closeDrawer(); });
 
-  window.OXHOME = { D, $, $$, esc, asset, icon, lineIcon, chatIcon, logoHTML, cardArt, watchCard, teacher, say, SND, reduce, fx, setWorld, openDrawer, closeDrawer };
+  window.OXHOME = { D, $, $$, esc, asset, icon, lineIcon, chatIcon, logoHTML, cardFace, watchCard, teacher, say, SND, reduce, fx, setWorld, openDrawer, closeDrawer };
 })();

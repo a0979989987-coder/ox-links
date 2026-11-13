@@ -5,9 +5,13 @@
 (function () {
   "use strict";
   const HM = window.OXHOME; if (!HM) return;
-  const { D, $, $$, esc, asset, icon, lineIcon, chatIcon, logoHTML, cardArt, watchCard, teacher, say, SND, reduce, fx } = HM;
+  const { D, $, $$, esc, asset, icon, lineIcon, chatIcon, logoHTML, cardFace, watchCard, teacher, say, SND, reduce, fx } = HM;
   const B = document.body, F = D.flow, EX = D.exchanges, joiners = D.teachers.filter(t => t.join);
   const wait = ms => new Promise(r => setTimeout(r, ms));
+  // 會員卡上的英文名字：大寫、只留 A-Z、空白、點、連字號、撇號，最多 26 字；typing 時保留尾巴的空白
+  const cleanEn = (v, typing) => { let s = String(v || "").replace(/[Ａ-Ｚａ-ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).toUpperCase().replace(/[^A-Z .'-]/g, "").replace(/\s+/g, " "); s = typing ? s.replace(/^ /, "") : s.trim(); return s.slice(0, 26); };
+  // 卡上的會員編號：申請編號 OX-20261112-0001 印成 2026 1112 0001；樣張模式沒有編號就是點點
+  const memberNo = id => { const m = /^OX-(\d{4})(\d{4})-(\d{4})$/.exec(id || ""); return m ? `${m[1]} ${m[2]} ${m[3]}` : ""; };
   // 這一次瀏覽的選擇記在 sessionStorage，送出過的申請記在 localStorage（第二個參數傳 true）；隱私模式拿不到就當沒有
   const box = long => { try { return long ? localStorage : sessionStorage; } catch (e) { return null; } };
   const store = { get(k, long) { try { return JSON.parse(box(long).getItem(k) || "null"); } catch (e) { return null; } }, set(k, v, long) { try { v == null ? box(long).removeItem(k) : box(long).setItem(k, JSON.stringify(v)); } catch (e) {} } };
@@ -90,6 +94,7 @@
             <p class="hint">填你之後登入 OX 加密要用的信箱，教材也寄到這裡。</p><div data-google></div></div>
           <div class="oh-fld"><label for="f-line">LINE 名稱<u>選填</u></label><input id="f-line" name="line" type="text" autocomplete="off" maxlength="40" placeholder="進社群後對得到人" value="${esc(d.line || "")}"></div>
           <div class="oh-fld"><label for="f-name">怎麼稱呼你<u>選填</u></label><input id="f-name" name="name" type="text" autocomplete="nickname" maxlength="40" value="${esc(d.name || "")}"></div>
+          <div class="oh-fld"><label for="f-en">印在會員卡上的英文名字<u>選填</u></label><input id="f-en" name="en" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="26" placeholder="例：XIAO MING" value="${esc(d.en || "")}"></div>
           <div class="oh-fld"><div class="lb">交易經驗<u>選填</u></div>${chips("exp", F.exp, false)}</div>
           <div class="oh-fld"><div class="lb">最想學什麼<u>選填，可複選</u></div>${chips("learn", F.learn, true)}</div>
           <label class="oh-check" data-f="agree"><input type="checkbox" name="agree"><i>${icon("check")}</i><span>${esc(F.agree)}</span></label>
@@ -104,10 +109,8 @@
       const t = teacher(a.teacher) || joiners[0], e = EX[a.exchange] || {}, when = new Date(a.at);
       const ts = `${when.getFullYear()}/${String(when.getMonth() + 1).padStart(2, "0")}/${String(when.getDate()).padStart(2, "0")}`;
       return { step: 4, title: "等審核", html: `<div class="oh-done"><h2>收到了</h2><p>${a.name ? esc(a.name) + "，" : ""}這是你的申請卡，可以截圖留著。</p>
-        <div class="oh-mycard"><span class="oh-card" data-card><span class="oh-card-art" aria-hidden="true">${cardArt()}</span><span class="oh-card-sheen" aria-hidden="true"></span>
-          <span class="oh-card-top"><span class="oh-logo">${logoHTML()}</span><em>OX Trading</em><i>MEMBER</i></span>
-          <span class="oh-card-meta"><span>${esc(e.name || "")} UID •••• ${esc(a.uid4)}</span><span>${esc(ts)}</span></span>
-          <strong class="oh-card-title">${esc(a.name || t.name)}</strong><span class="oh-card-state">審核中</span></span></div>
+        <div class="oh-mycard"><span class="oh-card" data-card>${cardFace({ no: memberNo(a.id), name: a.en || a.name || t.name, since: when.getFullYear() })}</span>
+          <p class="oh-mystate"><span>${esc(e.name || "")} UID •••• ${esc(a.uid4)}　${esc(ts)}</span><b>審核中</b></p></div>
         <ul class="oh-conds"><li class="ok"><i>${icon("check")}</i>${esc(D.member.conds[0])}<u>已填 UID</u></li><li><i>2</i>${esc(D.member.conds[1])}<u>系統核對</u></li><li><i>3</i>${esc(D.member.conds[2])}<u>系統核對</u></li></ul>
         <p class="oh-say">${esc(D.member.ruleNote)}<small>達標後，進階教材會寄到你填的信箱。</small></p>
         ${a.demo ? `<p class="oh-demo">樣張：後台還沒接上，這筆資料沒有送出去，只存在你這支手機裡。接好之後這行字會消失。</p>` : ""}
@@ -238,7 +241,7 @@
   const picked = n => $$(`[data-chips="${n}"] button[aria-pressed="true"]`, pane).map(b => b.dataset.v);
   const RULE = { uid: v => /^\d{5,20}$/.test(v), email: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) && v.length <= 120 };
   function check(n) { const box = $(`[data-f="${n}"]`, pane), ok = RULE[n](val(n)); box && box.classList.toggle("bad", !ok); return ok; }
-  function draft() { store.set("ox-draft", { uid: val("uid"), email: val("email"), line: val("line"), name: val("name"), exp: picked("exp")[0] || "", learn: picked("learn") }); }
+  function draft() { store.set("ox-draft", { uid: val("uid"), email: val("email"), line: val("line"), name: val("name"), en: val("en"), exp: picked("exp")[0] || "", learn: picked("learn") }); }
   let opened = 0, credential = "";
   function wireForm(t) {
     const form = $("form", pane); opened = Date.now(); credential = "";
@@ -252,6 +255,8 @@
       if (to) { fix.dataset.fix = m[1] + "@" + to; fix.innerHTML = `你是不是要打 <b>${esc(m[1] + "@" + to)}</b>？點這裡改`; fix.hidden = false; }
     });
     $$('[name="line"],[name="name"]', pane).forEach(i => i.addEventListener("input", draft));
+    // 英文名字：打的時候就轉大寫、只留英文字母和空白（後台也會再清一次）
+    const en = $("#f-en"); en && en.addEventListener("input", () => { const v = cleanEn(en.value, true); if (v !== en.value) en.value = v; draft(); });
     $('[name="agree"]', pane).addEventListener("change", e => $('[data-f="agree"]', pane).classList.toggle("bad", !e.target.checked));
     googleFill(em);
     form.addEventListener("submit", async e => {
@@ -260,7 +265,7 @@
       $('[data-f="agree"]', pane).classList.toggle("bad", !ag);
       if (!okU || !okE || !ag) { const bad = $(".bad", pane); bad && bad.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" }); SND.tick(300, .07); return; }
       const btn = $('button[type="submit"]', form), ids = exNames(t), ex = ids.includes(sel.exchange) ? sel.exchange : ids[0];
-      const data = { v: 1, teacher: t.id, picked: sel.picked || t.id, exchange: ex, uid: val("uid"), email: val("email").toLowerCase(), line: val("line"), name: val("name"), exp: picked("exp")[0] || "", learn: picked("learn"), agree: true, credential, hp: val("ox-extra"), ms: 0, page: location.origin + location.pathname, ua: navigator.userAgent.slice(0, 200) };
+      const data = { v: 1, teacher: t.id, picked: sel.picked || t.id, exchange: ex, uid: val("uid"), email: val("email").toLowerCase(), line: val("line"), name: val("name"), en: cleanEn(val("en")), exp: picked("exp")[0] || "", learn: picked("learn"), agree: true, credential, hp: val("ox-extra"), ms: 0, page: location.origin + location.pathname, ua: navigator.userAgent.slice(0, 200) };
       btn.disabled = true; btn.classList.add("oh-sending"); btn.innerHTML = `送出中${icon("spin")}`;
       // 後台把開不到 2.5 秒就送出的當成機器人，會回成功但不存。草稿自動帶回來的人可能按得很快，這裡等滿 3 秒再送
       const early = 3000 - (Date.now() - opened); if (D.api && early > 0) await wait(early);
@@ -270,7 +275,7 @@
       // 後台把這一筆當成機器人時會回成功，但編號流水號是 9 開頭，其實沒有存。多半是自動填入工具填了藏起來的那一格：清掉，請他再按一次
       if (res && res.ok && /-9\d{3}$/.test(res.id || "")) { const hp = $('[name="ox-extra"]', pane); if (hp) hp.value = ""; res = { ok: false, msg: "這一筆沒有送成功，請再按一次送出。" }; }
       if (!res || !res.ok) { btn.disabled = false; btn.classList.remove("oh-sending"); btn.innerHTML = `送出${icon("arrow")}`; say((res && res.msg) || "送不出去，等一下再試一次。", 3600); SND.tick(300, .07); return; }
-      store.set("ox-apply", { id: res.id || "", teacher: t.id, exchange: ex, uid4: data.uid.slice(-4), name: data.name, at: Date.now(), demo: !!res.demo, dup: !!res.dup }, true);
+      store.set("ox-apply", { id: res.id || "", teacher: t.id, exchange: ex, uid4: data.uid.slice(-4), name: data.name, en: data.en, at: Date.now(), demo: !!res.demo, dup: !!res.dup }, true);
       store.set("ox-draft", null);
       fx().burst && fx().burst();
       go("#join/done", true);
