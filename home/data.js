@@ -16,7 +16,7 @@ window.OXH = {
   logo: { img: "home/img/logo.png" },
 
   line: {
-    official: { title: "LINE 官方", desc: "加好友領免費教材", url: "https://lin.ee/SJ4F4Jq" },
+    official: { title: "LINE 官方", desc: "加好友領免費教材", url: "https://lin.ee/pSdJA49" },
     community: { title: "LINE 社群", desc: "進來一起聊盤", url: "https://line.me/ti/g2/FXj0yahd04U4JecSoC4uPInXiqhLulqdCl54Ag?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" }
   },
 
