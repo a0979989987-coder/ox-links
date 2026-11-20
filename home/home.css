@@ -418,6 +418,7 @@ body.dr-open .oh-dcta, body.dr-open .oh-dsec, body.dr-open .oh-di, body.dr-open 
 .oh-say { margin-top: 16px; font: 500 14px/1.7 var(--font); }
 .oh-say small { display: block; font: 400 13px/1.6 var(--font); color: var(--muted); }
 .oh-demo { margin-top: 16px; padding: 11px 13px; border-radius: 13px; font: 400 12.5px/1.65 var(--font); text-align: left; color: #ffc9c9; border: 1px dashed rgba(255, 107, 107, .6); }
+.oh-next { margin: 16px 0 12px; padding: 12px 14px; border-radius: 13px; font: 600 13.5px/1.65 var(--font); text-align: left; color: #f3dfb2; border: 1px solid rgba(226, 186, 104, .55); background: rgba(226, 186, 104, .07); }
 .oh-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
 .oh-two .oh-btn { margin-top: 0; height: 50px; font-size: 14.5px; }
 

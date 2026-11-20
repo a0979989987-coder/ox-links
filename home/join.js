@@ -110,17 +110,18 @@
       const ts = `${when.getFullYear()}/${String(when.getMonth() + 1).padStart(2, "0")}/${String(when.getDate()).padStart(2, "0")}`;
       return { step: 4, title: "等審核", html: `<div class="oh-done"><h2>收到了</h2><p>${a.name ? esc(a.name) + "，" : ""}這是你的申請卡，可以截圖留著。</p>
         <div class="oh-mycard"><span class="oh-card" data-card>${cardFace({ no: memberNo(a.id), name: a.en || a.name || t.name, since: when.getFullYear() })}</span>
-          <p class="oh-mystate"><span>${esc(e.name || "")} UID •••• ${esc(a.uid4)}　${esc(ts)}</span><b>審核中</b></p></div>
+          <p class="oh-mystate"><span>${esc(e.name || "")} UID ${a.demo && a.uidFull ? esc(a.uidFull) : "•••• " + esc(a.uid4)}　${esc(ts)}</span><b>審核中</b></p></div>
         <ul class="oh-conds"><li class="ok"><i>${icon("check")}</i>${esc(D.member.conds[0])}<u>已填 UID</u></li><li><i>2</i>${esc(D.member.conds[1])}<u>系統核對</u></li><li><i>3</i>${esc(D.member.conds[2])}<u>系統核對</u></li></ul>
-        <p class="oh-say">${esc(D.member.ruleNote)}<small>達標後，進階教材會寄到你填的信箱。</small></p>
-        ${a.demo ? `<p class="oh-demo">樣張：後台還沒接上，這筆資料沒有送出去，只存在你這支手機裡。接好之後這行字會消失。</p>` : ""}
+        ${a.demo ? `<p class="oh-say">我們會到交易所後台核對<small>審核完，24 小時內用 LINE 把進階教材傳給你。</small></p>
+        <p class="oh-next">還差最後一步：把這張申請卡截圖，傳到 LINE 官方。我們收到截圖才會開始審核。</p>
+        <a class="oh-btn gold" href="${esc(D.line.official.url)}" target="_blank" rel="noopener">截圖好了，傳到 LINE 官方${icon("arrow")}</a>` : `<p class="oh-say">${esc(D.member.ruleNote)}<small>達標後，進階教材會寄到你填的信箱。</small></p>`}
         ${a.dup ? `<p class="oh-warn" style="text-align:left">這個 UID 之前送過了，信箱照第一次填的留著。要改信箱，到 LINE 官方跟我們說。</p>` : ""}
         ${lineBtns()}<p class="oh-priv" style="margin-top:16px">有問題到 LINE 官方問，把這張卡截圖傳過來。${a.id && !a.demo ? `申請編號 ${esc(a.id)}` : ""}</p>
         <button type="button" class="oh-btn ghost" data-again>換一個帳號重新申請</button></div>` };
     },
     guide() {
       return { step: 0, title: "註冊教學", html: `<div class="oh-doc"><h2>怎麼成為 OX 會員</h2>
-        <ol class="oh-how"><li>選一位老師。你是看誰的內容來的，就選誰。</li>${F.how.map(s => `<li>${esc(s)}</li>`).join("")}<li>${esc(D.member.ruleNote)}。達標後，進階教材寄到你填的信箱。</li></ol>
+        <ol class="oh-how"><li>選一位老師。你是看誰的內容來的，就選誰。</li>${F.how.map(s => `<li>${esc(s)}</li>`).join("")}<li>${D.api ? esc(D.member.ruleNote) + "。達標後，進階教材寄到你填的信箱。" : "填完把申請卡截圖傳到 LINE 官方。審核完，24 小時內用 LINE 把進階教材傳給你。"}</li></ol>
         <p class="oh-warn">${esc(F.oldAccount)}</p>
         <h3>UID 在哪裡看</h3><div class="oh-help" style="margin-top:12px">${uidHTML(Object.keys(EX))}</div>
         <button type="button" class="oh-btn gold" data-open="join">開始註冊${icon("arrow")}</button></div>` };
@@ -275,7 +276,7 @@
       // 後台把這一筆當成機器人時會回成功，但編號流水號是 9 開頭，其實沒有存。多半是自動填入工具填了藏起來的那一格：清掉，請他再按一次
       if (res && res.ok && /-9\d{3}$/.test(res.id || "")) { const hp = $('[name="ox-extra"]', pane); if (hp) hp.value = ""; res = { ok: false, msg: "這一筆沒有送成功，請再按一次送出。" }; }
       if (!res || !res.ok) { btn.disabled = false; btn.classList.remove("oh-sending"); btn.innerHTML = `送出${icon("arrow")}`; say((res && res.msg) || "送不出去，等一下再試一次。", 3600); SND.tick(300, .07); return; }
-      store.set("ox-apply", { id: res.id || "", teacher: t.id, exchange: ex, uid4: data.uid.slice(-4), name: data.name, en: data.en, at: Date.now(), demo: !!res.demo, dup: !!res.dup }, true);
+      store.set("ox-apply", { id: res.id || "", teacher: t.id, exchange: ex, uid4: data.uid.slice(-4), uidFull: res.demo ? data.uid : "", name: data.name, en: data.en, at: Date.now(), demo: !!res.demo, dup: !!res.dup }, true);
       store.set("ox-draft", null);
       fx().burst && fx().burst();
       go("#join/done", true);
