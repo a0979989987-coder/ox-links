@@ -158,7 +158,9 @@ W.logo = (() => {
 // ---------- 排程：v5 起這張 3D 畫布只管金屬 logo（開場和收尾）；其他世界是先渲染好的畫面，由 seq.js 播放 ----------
 const outroEl = document.querySelector('[data-world="outro"]');
 if (outroEl) OX.track(outroEl);
-function resize() { const w = innerWidth, h = Math.max(innerHeight, document.documentElement.clientHeight); renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+let rw = 0, rh = 0;
+// iPhone 滑動時網址列收合只會讓高度變一點點：這種不重建畫布（重建一次會卡一下）
+function resize() { const w = innerWidth, h = Math.max(innerHeight, document.documentElement.clientHeight); if (w === rw && Math.abs(h - rh) < 160) return; rw = w; rh = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 addEventListener("resize", resize); resize();
 let intro = null, shown = null;
 function setShown(v) { if (v !== shown) { shown = v; canvas.style.visibility = v ? "visible" : "hidden"; } }
