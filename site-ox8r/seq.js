@@ -5,7 +5,11 @@
    手機不卡的關鍵（v5.1）：
    1. 抓下來的只是壓縮檔（很小）。要畫的時候才解成點陣圖，而且是在背景執行緒解（createImageBitmap），主執行緒不解碼。
    2. 只留「目前這張的前後十幾張＋每 12 張一張墊底的」，離開範圍就釋放。一張解開有 4.5 MB，84 張全解開手機會撐不住。
-   3. 畫布大小只在螢幕寬度變的時候重算；iPhone 滑動時網址列收合（高度變）不重建畫布。 */
+   3. 畫布大小只在螢幕寬度變的時候重算；iPhone 滑動時網址列收合（高度變）不重建畫布。
+
+   看起來順的關鍵（v5.2）：84 張攤在一長段滑動上，直接「滑到哪張畫哪張」每秒只換十幾張，旁邊的文字卻是每秒上百格，
+   看起來就是卡。所以：畫面位置用緩動追上滑動位置（每一格都在動），相鄰兩張之間用淡入淡出補；
+   停下來 0.14 秒後收到最近的整張，停著的時候不會有疊影。 */
 (function () {
   "use strict";
   const cv = document.getElementById("seq"), g = cv.getContext("2d", { alpha: false });
@@ -13,6 +17,7 @@
   const BMP = typeof createImageBitmap === "function";
   const AHEAD = 7, BEHIND = 4, ANCHOR = 12, MAXPEND = 3;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches, TAU = 100, SETTLE = 140;
   // 世界：開頭的顏色（上一個世界收尾的顏色）
   const WORLDS = { balance: { c: "#04060f" }, city: { c: "#ece2cc", light: 1 }, tunnel: { c: "#020309" }, lab: { c: "#03101f" }, islands: { c: "#ebe5d6", light: 1 }, academy: { c: "#05081c" }, cinema: { c: "#070103" }, stars: { c: "#030716" }, card: { c: "#000000" } };
   Object.keys(WORLDS).forEach(k => { const w = WORLDS[k]; w.name = k; w.blobs = new Array(N); w.got = 0; w.started = false; w.bmp = new Map(); w.pend = new Set(); w.keep = null; });
@@ -35,6 +40,8 @@
     };
     next();
   }
+  // 這一段內容區的圖片（App 截圖、老師照片）也提前抓好解好，不然卡片第一次進畫面那一格會頓一下
+  function warm(el) { el.querySelectorAll("img").forEach(im => { im.loading = "eager"; const d = () => { if (im.decode) im.decode().catch(() => {}); }; if (im.complete) d(); else im.addEventListener("load", d, { once: true }); }); }
   // 解成點陣圖（背景執行緒）；舊瀏覽器沒有 createImageBitmap 就退回用 <img> 先 decode()
   function decode(w, i) {
     w.pend.add(i);
@@ -66,9 +73,11 @@
     const d = Math.min(devicePixelRatio || 1, 2), w = Math.min(Math.round(r.width * d), Math.round(FW * 1.5)), h = Math.round(w * r.height / r.width);
     if (w !== cw || h !== ch) { cw = cv.width = w; ch = cv.height = h; dirty = true; }
   }
-  function drawCover(im) {
+  function drawCover(im, a) {
     const iw = im.width || im.naturalWidth, ih = im.height || im.naturalHeight, s = Math.max(cw / iw, ch / ih), w = iw * s, h = ih * s;
+    if (a < 1) g.globalAlpha = a;
     g.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+    if (a < 1) g.globalAlpha = 1;
   }
   // 這一段現在的進度（0～1）
   function progress(o, mid) {
@@ -80,26 +89,36 @@
     return .5 + .3 * clamp((mid - stBottom) / Math.max(1, exTop - stBottom), 0, 1);
   }
   let cur = "", curW = null, shown = null, lastKey = "", lastI = -1, dir = 1;
-  OX.add(S => {
+  let fd = -1, lastFt = -1, lastMove = 0;      // fd：畫面現在在第幾張（有小數）
+  OX.add((S, now) => {
     const mid = S.vh / 2; let o = null;
     for (const s of secs) { const r = OX.rect(s.el); if (r.top <= mid && r.bottom > mid) { o = s; break; } }
     const world = o ? o.world : (S.y < S.vh ? "bh" : cur);
     if (world !== cur) { cur = world; document.documentElement.dataset.cur = world; dispatchEvent(new CustomEvent("oxworld", { detail: world })); }
     // 快到的世界先抓檔
-    for (const s of secs) { const w = WORLDS[s.world]; if (!w || w.started) continue; const r = OX.rect(s.el); if (r.top < S.vh * 2.5 && r.bottom > -S.vh) load(w); }
+    for (const s of secs) { const w = WORLDS[s.world]; if (!w || w.started) continue; const r = OX.rect(s.el); if (r.top < S.vh * 2.5 && r.bottom > -S.vh) { load(w); warm(s.el); } }
     const w = (o && WORLDS[o.world]) || null;
-    if (w !== curW) { if (curW) release(curW); curW = w; lastI = -1; lastKey = ""; need = true; }
+    if (w !== curW) { if (curW) release(curW); curW = w; lastI = -1; lastKey = ""; need = true; fd = -1; }
     if (!w) { if (shown !== false) { cv.style.visibility = "hidden"; shown = false; } return; }
     if (shown !== true) { cv.style.visibility = "visible"; shown = true; dirty = true; }
     if (S.vw !== lastVW) { lastVW = S.vw; size(); }
     const p = progress(o, mid); window.OXP = { world: o.world, p };
-    const i0 = Math.round(p * (N - 1));
+    // 滑動位置 → 畫面位置：緩動追上去；停下來之後收到最近的整張
+    const ft = p * (N - 1);
+    if (Math.abs(ft - lastFt) > 1e-4) { lastMove = now; lastFt = ft; }
+    const tgt = REDUCE || now - lastMove > SETTLE ? Math.round(ft) : ft;
+    if (fd < 0 || REDUCE || Math.abs(tgt - fd) > 14) fd = tgt;                  // 剛進這個世界、或一下跳很遠：直接到位
+    else { fd += (tgt - fd) * (1 - Math.exp(-S.dt / TAU)); if (Math.abs(tgt - fd) < .012) fd = tgt; }
+    const i0 = clamp(Math.round(fd), 0, N - 1);
     if (i0 !== lastI) { if (lastI >= 0) dir = i0 > lastI ? 1 : -1; lastI = i0; need = true; }
     if (need) { need = false; manage(w, i0, dir); }
-    // 只畫一張：已經解好的裡面最接近的（兩張疊著畫，停下來會有疊影）
-    const bi = best(w, i0), key = w.name + ":" + bi;
+    // 相鄰兩張都解好了就淡入淡出；不然畫已經解好的裡面最接近的一張
+    const ia = clamp(Math.floor(fd), 0, N - 1), fr = fd - ia, A = w.bmp.get(ia), B = w.bmp.get(ia + 1), mix = A && B && fr > .03 && fr < .97;
+    const bi = mix ? ia : best(w, i0), key = w.name + ":" + bi + (mix ? ":" + fr.toFixed(3) : "");
     if (key === lastKey && !dirty) return; lastKey = key; dirty = false;
-    if (bi >= 0) drawCover(w.bmp.get(bi)); else { g.fillStyle = w.c; g.fillRect(0, 0, cw, ch); }
+    if (mix) { drawCover(A, 1); drawCover(B, fr); }
+    else if (bi >= 0) drawCover(w.bmp.get(bi), 1);
+    else { g.fillStyle = w.c; g.fillRect(0, 0, cw, ch); }
   });
   addEventListener("orientationchange", () => setTimeout(() => { lastVW = -1; }, 300));
   window.OXSEQ = { WORLDS };
