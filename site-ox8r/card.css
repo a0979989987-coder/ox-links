@@ -1,0 +1,30 @@
+.oh-card { position: relative; display: block; width: 100%; aspect-ratio: 1.586; border-radius: 13px; overflow: hidden; isolation: isolate; color: #e9e4d6; container-type: inline-size; background: #0b0b0d;
+  transform: rotateX(calc(var(--ty, 0) * -7deg)) rotateY(calc(var(--tx, 0) * 9deg)) scale(var(--press, 1)); will-change: transform; transition: box-shadow .5s ease;
+  box-shadow: 0 1px 0 #4a3b1c, 0 2px 0 #120e07, 0 2px 4px rgba(0, 0, 0, .5), 0 22px 46px rgba(0, 0, 0, .58), 0 0 42px rgba(227, 196, 126, .1); }
+.oh-join:active .oh-card { --press: .98; }
+.oh-card > span { position: absolute; display: block; pointer-events: none; }
+.oc-body { inset: 0; z-index: 0; background: url(img/card/body.webp) center / 100% 100%; }
+.oc-lines { inset: 0; z-index: 1; opacity: .65; -webkit-mask: url(img/card/lines.png) center / 100% 100%; mask: url(img/card/lines.png) center / 100% 100%; background: linear-gradient(120deg, rgba(255, 255, 255, .85), rgba(255, 255, 255, .35)); }
+.oc-light { inset: 0; z-index: 2; background: radial-gradient(120% 85% at 12% -12%, rgba(255, 255, 255, .07), transparent 55%), radial-gradient(90% 90% at 110% 120%, rgba(0, 0, 0, .4), transparent 60%); }
+.oc-logo { z-index: 3; right: -15%; top: 52%; height: 106%; aspect-ratio: 1; transform: translateY(-50%); }
+.oc-logo > i, .oc-logo > img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.oc-logo > i { -webkit-mask: url(img/card/mask.png) center / 100% 100% no-repeat; mask: url(img/card/mask.png) center / 100% 100% no-repeat; background-blend-mode: overlay, normal;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='700' height='260'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='.0012 1.1' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='700' height='260' filter='url(%23b)'/></svg>") 0 0 / 700px 260px, linear-gradient(160deg, #70757d 0%, #2a2c31 40%, #3c3f45 60%, #15161a 100%); }
+.oc-logo > img { opacity: .85; }
+/* 流光：跟著傾斜的角度掃過去 */
+.oc-sheen { inset: 0; z-index: 5; mix-blend-mode: screen; background: linear-gradient(118deg, transparent 34%, rgba(255, 246, 225, .045) 43%, rgba(255, 246, 225, .1) 48%, transparent 58%); background-size: 240% 100%; background-position: calc(50% - var(--tx, 0) * 90%) 0; }
+.oc-bevel, .oc-silver { z-index: 9; -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.oc-bevel { inset: 0; border-radius: inherit; padding: 1.5px; background: conic-gradient(from 200deg at 50% 50%, #fff4d2, #b8913f 9%, #4a3812 18%, #d6b465 28%, #fff7df 34%, #8a6a28 46%, #2f2409 55%, #c9a24f 66%, #fff1c9 74%, #9b7a33 84%, #fff4d2); }
+.oc-silver { inset: 1.5cqw; border-radius: 9px; padding: .5px; background: linear-gradient(135deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .08) 40%, rgba(255, 255, 255, .02) 60%, rgba(255, 255, 255, .35)); }
+.oc-brand { z-index: 10; left: 7.5%; top: 12%; font: 500 2.52cqw/1 "Jost", var(--font); letter-spacing: .38em; color: #d9d3c4; text-shadow: 0 .6px 0 rgba(0, 0, 0, .8); white-space: nowrap; }
+.oc-emb { z-index: 10; white-space: nowrap; background: linear-gradient(180deg, #fbf8f0 0%, #dcd7ca 45%, #a9a396 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 .8px 0 rgba(0, 0, 0, .95)) drop-shadow(0 -.5px 0 rgba(255, 255, 255, .28)) drop-shadow(0 1.6px 1.4px rgba(0, 0, 0, .55)); }
+.oc-since { z-index: 10; left: 7.5%; top: 26%; }
+.oc-since small { display: block; margin-bottom: 1.4cqw; font: 500 1.7cqw/1 "Jost", var(--font); letter-spacing: .34em; background: var(--foil); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.oc-since .oc-emb { position: static; display: block; font: 500 3.36cqw/1 "IBM Plex Mono", var(--mono); letter-spacing: .14em; }
+.oc-no { left: 7.5%; top: 67%; font: 500 4.1cqw/1 "IBM Plex Mono", var(--mono); letter-spacing: .15em; }
+.oc-dots { z-index: 10; left: 7.5%; top: 69%; display: flex !important; gap: 4.4cqw; }
+.oc-dots > b { display: flex; gap: 1.6cqw; }
+.oc-dots i { width: 1.17cqw; height: 1.17cqw; border-radius: 50%; background: linear-gradient(180deg, #f5f1e7, #a49e90); box-shadow: 0 .8px 0 rgba(0, 0, 0, .95), 0 -.4px 0 rgba(255, 255, 255, .3); }
+.oc-name { left: 7.5%; bottom: 11.5%; font: 500 3.36cqw/1 "IBM Plex Mono", var(--mono); letter-spacing: .16em; }
+.oc-name.zh { font: 500 3.5cqw/1 var(--font); letter-spacing: .28em; }
