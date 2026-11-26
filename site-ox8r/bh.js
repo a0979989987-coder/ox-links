@@ -15,7 +15,7 @@
   const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0., 1.); }`;
   const FS = `
 precision highp float;
-uniform vec2 uRes; uniform float uTime, uDist, uSteps, uRoll, uAz, uEl, uFocal, uExpo;
+uniform vec2 uRes, uOff; uniform float uTime, uDist, uSteps, uRoll, uAz, uEl, uFocal, uExpo;
 float hash3(vec3 p){ p = fract(p * vec3(.1031, .1030, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.x + p.y) * p.z); }
 float n3(vec3 x){ vec3 i = floor(x), f = fract(x); f = f * f * (3. - 2. * f);
   return mix(mix(mix(hash3(i), hash3(i + vec3(1,0,0)), f.x), mix(hash3(i + vec3(0,1,0)), hash3(i + vec3(1,1,0)), f.x), f.y),
@@ -81,7 +81,7 @@ vec4 disk(vec3 p, vec3 rd){
   return vec4(col * I * 1.6, alpha);
 }
 void main(){
-  vec2 uv = (gl_FragCoord.xy - .5 * uRes) / min(uRes.x, uRes.y);
+  vec2 uv = (gl_FragCoord.xy - .5 * uRes) / min(uRes.x, uRes.y) - uOff;
   float cr = cos(uRoll), sr = sin(uRoll);
   uv = vec2(cr * uv.x - sr * uv.y, sr * uv.x + cr * uv.y);
   vec3 cam = uDist * vec3(cos(uEl) * sin(uAz), sin(uEl), cos(uEl) * cos(uAz));
@@ -132,7 +132,7 @@ void main(){
     const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-    ["uRes", "uTime", "uDist", "uSteps", "uRoll", "uAz", "uEl", "uFocal", "uExpo"].forEach(n => U[n] = gl.getUniformLocation(prog, n));
+    ["uRes", "uOff", "uTime", "uDist", "uSteps", "uRoll", "uAz", "uEl", "uFocal", "uExpo"].forEach(n => U[n] = gl.getUniformLocation(prog, n));
   }
   try { build(); } catch (e) { console.warn(e); stage.classList.add("no-gl"); return; }
   cv.addEventListener("webglcontextlost", e => { e.preventDefault(); lost = true; }, false);
@@ -177,7 +177,9 @@ void main(){
     const az = .35 + t * .006 + smx * .08 + e * .5;
     const roll = (portrait() ? -.16 : -.2) * (1 - .6 * e);
     const focal = (portrait() ? 1.08 : .92) * (1 - .38 * smooth((p - .45) / .5));   // 越近鏡頭越廣，光環留在畫面裡
-    return { dist, el, az, roll, focal };
+    // 一開始黑洞讓出位置給左邊的字（手機是讓出上半）；往下滑慢慢移回正中間，最後正面衝進去
+    const k = 1 - smooth((p - .06) / .5), off = portrait() ? [0, -.34 * k] : [.38 * k, -.02 * k];
+    return { dist, el, az, roll, focal, off };
   }
   function drawDust(c, t, p) {
     dg.clearRect(0, 0, dW, dH);
@@ -194,7 +196,7 @@ void main(){
       const z = w[0] * fw[0] + w[1] * fw[1] + w[2] * fw[2]; if (z < .3) continue;
       let x = (w[0] * rt[0] + w[1] * rt[1] + w[2] * rt[2]) / z * c.focal, y = (w[0] * up[0] + w[1] * up[1] + w[2] * up[2]) / z * c.focal;
       const xr = cr * x - sr * y, yr = sr * x + cr * y;
-      const sx = dW / 2 + xr * m, sy = dH / 2 - yr * m;
+      const sx = dW / 2 + (xr + c.off[0]) * m, sy = dH / 2 - (yr + c.off[1]) * m;
       if (sx < -20 || sx > dW + 20 || sy < -20 || sy > dH + 20) continue;
       const size = clamp(d.s * 6 / z, .35, 2.6), al = clamp(.75 / Math.sqrt(z * .35), 0, .85) * (.6 + .4 * Math.sin(t * d.w + d.tw)) * fade;
       dg.globalAlpha = al; dg.fillStyle = "#e9c987";
@@ -205,7 +207,7 @@ void main(){
 
   // 滑動進度：.hero 外層很長、裡面的 .hero-stage 釘住
   function progress() { const r = stage.getBoundingClientRect(), span = r.height - innerHeight; return clamp(-r.top / Math.max(1, span), 0, 1); }
-  const word = document.querySelector(".hero-word"), hint = document.querySelector(".hero-hint"), veil = document.querySelector(".hero-veil");
+  const word = document.querySelector(".hero-copy"), hint = document.querySelector(".hero-hint"), veil = document.querySelector(".hero-veil");
   let visible = true, t0 = performance.now(), slow = 0, frames = 0;
   if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) kick(); }, { rootMargin: "100px" }).observe(stage);
   let raf = 0;
@@ -219,17 +221,18 @@ void main(){
     smx += (mx - smx) * .04; smy += (my - smy) * .04;
     const p = prog01, c = camAt(p, t);
     if (!lost) {
-      gl.uniform2f(U.uRes, W, H); gl.uniform1f(U.uTime, t); gl.uniform1f(U.uDist, c.dist);
+      gl.uniform2f(U.uRes, W, H); gl.uniform2f(U.uOff, c.off[0], c.off[1]); gl.uniform1f(U.uTime, t); gl.uniform1f(U.uDist, c.dist);
       gl.uniform1f(U.uSteps, steps); gl.uniform1f(U.uRoll, c.roll); gl.uniform1f(U.uAz, c.az); gl.uniform1f(U.uEl, c.el);
       gl.uniform1f(U.uFocal, c.focal); gl.uniform1f(U.uExpo, 1.1);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     drawDust(c, t, p);
-    // 字：一開始就在；往下滑放大、變淡、微微模糊（Apple 那種）
-    const wf = smooth(p / .16);
+    // 左邊的字：往下滑往上飄、變淡、微微模糊
+    const wf = smooth(p / .14);
     word.style.opacity = (1 - wf).toFixed(3);
-    word.style.transform = `translate(-50%, -50%) scale(${(1 + wf * .14).toFixed(4)})`;
+    word.style.transform = `translateY(${(-wf * 60).toFixed(1)}px)`;
     word.style.filter = wf > .01 ? `blur(${(wf * 6).toFixed(2)}px)` : "none";
+    word.style.pointerEvents = wf > .5 ? "none" : "";
     hint.style.opacity = (1 - smooth(p / .05)).toFixed(3);
     veil.style.opacity = smooth((p - .94) / .055).toFixed(3);
     document.documentElement.classList.toggle("past-hero", p > .97);

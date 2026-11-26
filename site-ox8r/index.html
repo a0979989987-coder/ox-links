@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" href="img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=Jost:wght@300;400;500&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600&family=Jost:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="card.css">
 <link rel="stylesheet" href="site.css">
 </head>
@@ -18,7 +18,7 @@
 <header class="nav" id="nav">
   <a class="nav-brand" href="#top" aria-label="OX Trading 回到最上面"><img src="img/logo.png" alt=""><b>OX Trading</b></a>
   <nav class="nav-links" aria-label="頁面段落">
-    <a href="#tools">工具</a><a href="#build">製作中</a><a href="#methods">交易法</a><a href="#team">團隊</a><a href="#member">會員</a>
+    <a href="#tw">OX 台股</a><a href="#crypto">OX 加密</a><a href="#build">製作中</a><a href="#methods">交易法</a><a href="#films">影片</a><a href="#team">團隊</a><a href="#faq">常見問題</a>
   </nav>
   <a class="nav-join" href="../preview-7k3q/">加入會員</a>
   <button class="nav-menu" type="button" aria-label="打開選單" aria-expanded="false"><i></i><i></i><i></i></button>
@@ -26,60 +26,114 @@
 <div class="drawer" id="drawer" aria-hidden="true">
   <div class="drawer-panel">
     <p class="drawer-title">OX Trading</p>
-    <a href="#tools">工具</a><a href="#build">製作中</a><a href="#methods">交易法</a><a href="#team">團隊</a><a href="#member">會員</a>
+    <a href="#tw">OX 台股</a><a href="#crypto">OX 加密</a><a href="#build">製作中</a><a href="#methods">交易法</a><a href="#films">K 線故事片</a><a href="#team">團隊</a><a href="#member">會員</a><a href="#faq">常見問題</a>
     <a class="drawer-join" href="../preview-7k3q/">加入會員</a>
   </div>
 </div>
 
-<!-- 一、黑洞 -->
+<!-- 一、黑洞（左字右黑洞） -->
 <section class="hero" id="top">
   <div class="hero-stage">
     <canvas id="bh" aria-hidden="true"></canvas>
     <canvas id="dust" aria-hidden="true"></canvas>
-    <h1 class="hero-word">OX Trading</h1>
+    <div class="hero-copy">
+      <p class="chip"><i></i>OX Trading</p>
+      <!-- 標題和小字：永盛要口述，這兩行是暫代 -->
+      <h1>台股和加密的<br>交易工具</h1>
+      <p class="hero-sub">OX 台股、OX 加密，加上四套交易法和五位老師。</p>
+      <div class="hero-btns">
+        <a class="btn-white" href="#tw">看 OX 工具</a>
+        <a class="btn-glass" href="https://lin.ee/pSdJA49" target="_blank" rel="noopener">LINE 領免費教材</a>
+      </div>
+    </div>
     <div class="hero-hint" aria-hidden="true"><i></i></div>
     <div class="hero-veil" aria-hidden="true"></div>
   </div>
 </section>
 
-<!-- 二、OX 工具 -->
-<section class="tools dark" id="tools" data-theme="dark">
-  <div class="wrap">
-    <p class="eyebrow" data-rv>OX 工具</p>
-    <h2 data-rv style="--d:.08s">台股和加密，各一套</h2>
-    <div class="tool-stage">
-      <article class="tool" data-rv style="--d:.1s">
-        <div class="phone"><img src="img/shots/ox-tw.webp" alt="OX 台股的型態畫板畫面" loading="lazy" width="780" height="1688"><span class="sweep"></span></div>
-        <div class="tool-txt">
-          <h3>OX 台股</h3>
-          <p>雷達、篩選器、型態畫板、泡泡圖</p>
-          <a class="btn-line" href="https://oxpattern.com" target="_blank" rel="noopener">打開 OX 台股</a>
-        </div>
-      </article>
-      <article class="tool" data-rv style="--d:.22s">
-        <div class="phone"><img src="img/shots/ox-crypto.webp" alt="OX 加密的畫板畫面" loading="lazy" width="780" height="1688"><span class="sweep"></span></div>
-        <div class="tool-txt">
-          <h3>OX 加密</h3>
-          <p>篩選雷達、形態搜尋、泡泡圖、熱力圖、資金輪動</p>
-          <a class="btn-line" href="https://ox-crypto-independent.vercel.app" target="_blank" rel="noopener">打開 OX 加密</a>
-        </div>
-      </article>
+<!-- 二、他的原話（滑過去一個字一個字亮起來） -->
+<section class="say dark" id="say" data-theme="dark">
+  <div class="say-stage">
+    <div class="wrap">
+      <p class="say-text" data-light>把市場想成天秤。<em>交易只是在判斷天秤現在倒向哪一邊。</em></p>
+      <p class="say-who">易中生Snsheng<span>雙極交易法</span></p>
     </div>
   </div>
 </section>
 
-<!-- 三、正在做的：手機釘住，往下滑換畫面 -->
+<!-- 三、真實數字 -->
+<section class="nums dark" data-theme="dark">
+  <div class="wrap">
+    <div class="ngrid">
+      <div class="num" data-rv><b data-count="1946">1,946</b><span>檔台股在畫板裡</span></div>
+      <div class="num" data-rv style="--d:.08s"><b data-count="300" data-suffix="+">300+</b><span>個加密幣種</span></div>
+      <div class="num" data-rv style="--d:.16s"><b>4<small>小時</small></b><span>掃一次加密突破</span></div>
+      <div class="num" data-rv style="--d:.24s"><b data-count="10">10</b><span>家交易所外觀，模擬交易所</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 四、1.0 OX 台股（學 Linear：編號段落＋大張真實介面＋功能格） -->
+<section class="prod dark" id="tw" data-theme="dark">
+  <div class="wrap">
+    <div class="prod-head">
+      <div data-rv><p class="no">1.0</p><h2>OX 台股</h2></div>
+      <div class="prod-intro" data-rv style="--d:.1s">
+        <p><b>大盤、法人、今日突破，一打開就在首頁。</b>畫一段走勢，找出走得像的股票；每天的突破和勝率都留紀錄。</p>
+        <a class="more" href="https://oxpattern.com" target="_blank" rel="noopener">打開 OX 台股<span>›</span></a>
+      </div>
+    </div>
+    <div class="showcase" data-tilt>
+      <div class="browser"><div class="bar"><i></i><i></i><i></i><span>oxpattern.com</span></div><img src="img/tabs/tw_d_home.webp" alt="OX 台股電腦版首頁" loading="lazy" width="1600" height="1000"></div>
+      <div class="phone sc-phone"><img src="img/tabs/tw_m_pattern.webp" alt="OX 台股手機版每日突破" loading="lazy" width="780" height="1688"><span class="sweep"></span></div>
+    </div>
+    <div class="feats">
+      <article class="feat" data-rv><div class="feat-img light-img"><img src="img/tabs/tw_m_home.webp" alt="" loading="lazy"></div><h3>首頁</h3><p>加權指數、三大法人、今日突破、此刻發生</p></article>
+      <article class="feat" data-rv style="--d:.06s"><div class="feat-img light-img"><img src="img/tabs/tw_m_market.webp" alt="" loading="lazy"></div><h3>行情</h3><p>排行、產業鏈、泡泡圖、板塊輪動、ETF、籌碼股</p></article>
+      <article class="feat" data-rv style="--d:.12s"><div class="feat-img light-img"><img src="img/tabs/tw_m_board.webp" alt="" loading="lazy"></div><h3>畫板</h3><p>畫出走勢或選一個型態，找出相近的股票</p></article>
+      <article class="feat" data-rv style="--d:.18s"><div class="feat-img light-img"><img src="img/tabs/tw_m_pattern.webp" alt="" loading="lazy"></div><h3>型態</h3><p>每日突破、長期勝率、過去紀錄</p></article>
+      <article class="feat" data-rv style="--d:.24s"><div class="feat-img light-img"><img src="img/tabs/tw_m_info.webp" alt="" loading="lazy"></div><h3>資訊</h3><p>行事曆、關鍵新聞、法說會</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- 五、2.0 OX 加密 -->
+<section class="prod dark" id="crypto" data-theme="dark">
+  <div class="wrap">
+    <div class="prod-head">
+      <div data-rv><p class="no">2.0</p><h2>OX 加密</h2></div>
+      <div class="prod-intro" data-rv style="--d:.1s">
+        <p><b>K 線、雷達、熱力圖、資金輪動，放在同一個畫面。</b>每 4 小時掃一次突破，長期勝率和過去紀錄都查得到。</p>
+        <a class="more" href="https://ox-crypto-independent.vercel.app" target="_blank" rel="noopener">打開 OX 加密<span>›</span></a>
+      </div>
+    </div>
+    <div class="showcase flip" data-tilt>
+      <div class="browser"><div class="bar"><i></i><i></i><i></i><span>OX 加密</span></div><img src="img/tabs/crypto_d_market.webp" alt="OX 加密電腦版行情" loading="lazy" width="1600" height="1000"></div>
+      <div class="phone sc-phone"><img src="img/tabs/crypto_m_home.webp" alt="OX 加密手機版首頁" loading="lazy" width="780" height="1688"><span class="sweep"></span></div>
+    </div>
+    <div class="feats">
+      <article class="feat" data-rv><div class="feat-img"><img src="img/tabs/crypto_m_home.webp" alt="" loading="lazy"></div><h3>首頁</h3><p>BTC、ETH、上漲家數、今日突破、雷達</p></article>
+      <article class="feat" data-rv style="--d:.06s"><div class="feat-img"><img src="img/tabs/crypto_m_market.webp" alt="" loading="lazy"></div><h3>行情</h3><p>K 線、排行、泡泡圖、強弱對比、熱力圖、主動買賣</p></article>
+      <article class="feat" data-rv style="--d:.12s"><div class="feat-img"><img src="img/tabs/crypto_m_board.webp" alt="" loading="lazy"></div><h3>畫板</h3><p>畫出走勢或選一個型態，找出相近的幣</p></article>
+      <article class="feat" data-rv style="--d:.18s"><div class="feat-img"><img src="img/tabs/crypto_m_pattern.webp" alt="" loading="lazy"></div><h3>型態</h3><p>每 4 小時突破、長期勝率、過去紀錄</p></article>
+      <article class="feat" data-rv style="--d:.24s"><div class="feat-img"><img src="img/tabs/crypto_m_info.webp" alt="" loading="lazy"></div><h3>資訊</h3><p>行事曆、關鍵新聞</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- 六、3.0 正在做的：手機釘住，往下滑換畫面 -->
 <section class="build dark" id="build" data-theme="dark">
   <div class="build-stage">
     <div class="build-copy">
-      <p class="eyebrow">正在做的</p>
-      <div class="bsteps">
-        <div class="bstep on"><span class="tag">製作中</span><h3>交易總覽</h3><p>九家交易所的資金放在同一個畫面看。</p></div>
-        <div class="bstep"><span class="tag">製作中</span><h3>交易總覽</h3><p>打到止損最多虧多少，數量自動算。</p></div>
-        <div class="bstep"><span class="tag">製作中</span><h3>交易總覽</h3><p>每張單的止盈止損都看得到，可以直接改。</p></div>
-        <div class="bstep"><span class="tag">製作中</span><h3>模擬交易所</h3><p>選一家你習慣的交易所，整個 App 會變成那一家的樣子。</p></div>
-        <div class="bstep"><span class="tag">製作中</span><h3>模擬交易所</h3><p>價格跟真實市場同步，資金自己生成，也能回到過去任何一天練習。</p></div>
-      </div>
+      <p class="no">3.0</p>
+      <h2>正在做的</h2>
+      <ol class="blist">
+        <li class="on"><span class="tag">製作中</span><b>交易總覽</b><p>九家交易所的資金放在同一個畫面看。</p></li>
+        <li><span class="tag">製作中</span><b>交易總覽</b><p>打到止損最多虧多少，數量自動算。</p></li>
+        <li><span class="tag">製作中</span><b>交易總覽</b><p>每張單的止盈止損都看得到，可以直接改。</p></li>
+        <li><span class="tag">製作中</span><b>模擬交易所</b><p>選一家你習慣的交易所，整個 App 會變成那一家的樣子。</p></li>
+        <li><span class="tag">製作中</span><b>模擬交易所</b><p>價格跟真實市場同步，資金自己生成，也能回到過去任何一天練習。</p></li>
+      </ol>
     </div>
     <div class="build-phone phone">
       <img class="on" src="img/shots/tt-home.webp" alt="交易總覽首頁" width="780" height="1688">
@@ -88,74 +142,104 @@
       <img src="img/shots/sim-pick.webp" alt="模擬交易所選交易所" loading="lazy" width="780" height="1688">
       <img src="img/shots/sim-bitget.webp" alt="模擬交易所 Bitget 外觀" loading="lazy" width="780" height="1688">
     </div>
-    <div class="build-dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <div class="build-bar" aria-hidden="true"><i></i></div>
   </div>
 </section>
 
-<!-- 四、轉白金：粒子波浪，底色從黑變亮 -->
+<!-- 七、轉白金 -->
 <section class="dawn" id="dawn">
   <div class="dawn-stage">
     <canvas id="wave" aria-hidden="true"></canvas>
     <div class="dawn-title">
       <p class="eyebrow">交易法</p>
-      <h2>四套看盤的方法</h2>
+      <h2>四套交易法</h2>
+      <p class="dawn-sub">每一套都有人在教，每一句都是他們自己講過的話。</p>
     </div>
   </div>
 </section>
 
-<!-- 五、交易法 -->
+<!-- 八、交易法（學 Apple Card：一格一格的大卡） -->
 <section class="methods light" id="methods" data-theme="light">
   <div class="wrap">
-    <div class="mgrid">
-      <article class="mcard" data-rv>
-        <header><h3>雙極交易法</h3><span>易中生Snsheng</span></header>
+    <div class="tiles">
+      <article class="tile t-dark t-wide" data-rv>
+        <p class="t-by">易中生Snsheng</p>
+        <h3>雙極<br>交易法</h3>
         <canvas data-anim="structure" aria-label="頂、回撤、突破的結構示意"></canvas>
-        <blockquote>雙極指買方和賣方兩極的分歧。把市場想成天秤：交易只是在判斷天秤現在倒向哪一邊。</blockquote>
-        <blockquote>選擇不做什麼，比做什麼重要。</blockquote>
+        <p class="t-quote">選擇不做什麼，比做什麼重要。</p>
       </article>
-      <article class="mcard" data-rv style="--d:.08s">
-        <header><h3>ICT／SMC</h3><span>阿聖聊交易・老承</span></header>
+      <article class="tile t-white" data-rv style="--d:.08s">
+        <p class="t-by">阿聖聊交易・老承</p>
+        <h3 class="blue">ICT／SMC</h3>
         <canvas data-anim="fvg" aria-label="失衡區和訂單塊示意"></canvas>
-        <blockquote>簡單來說流動性就是止損訂單的意思<cite>阿聖</cite></blockquote>
-        <blockquote>先看結構，後做方向<cite>老承</cite></blockquote>
+        <p class="t-quote">簡單來說流動性就是止損訂單的意思<cite>阿聖</cite></p>
+        <p class="t-quote">先看結構，後做方向<cite>老承</cite></p>
       </article>
-      <article class="mcard" data-rv>
-        <header><h3>SNR 支撐壓力</h3><span>阿聖聊交易</span></header>
+      <article class="tile t-gold" data-rv>
+        <p class="t-by">阿聖聊交易</p>
+        <h3>SNR<br>支撐壓力</h3>
         <canvas data-anim="snr" aria-label="SNR 支撐壓力示意"></canvas>
-        <blockquote>它更像是一種觀察與輔助判斷市場結構的工具</blockquote>
+        <p class="t-quote">它更像是一種觀察與輔助判斷市場結構的工具</p>
       </article>
-      <article class="mcard" data-rv style="--d:.08s">
-        <header><h3>裸 K／型態</h3><span>易中生Snsheng</span></header>
+      <article class="tile t-white t-wide" data-rv style="--d:.08s">
+        <p class="t-by">易中生Snsheng</p>
+        <h3>裸 K<span class="gold">／型態</span></h3>
         <canvas data-anim="boxes" aria-label="裸 K 前高前低示意"></canvas>
-        <blockquote>突破和跌破都一樣，影線碰到就算。</blockquote>
+        <p class="t-quote">突破和跌破都一樣，影線碰到就算。</p>
       </article>
     </div>
   </div>
 </section>
 
-<!-- 六、創辦人＋老師 -->
+<!-- 九、K 線故事片影片牆 -->
+<section class="films light" id="films" data-theme="light">
+  <div class="wrap">
+    <div class="sec-head" data-rv>
+      <p class="eyebrow">K 線故事片</p>
+      <h2>把一段歷史<br><span class="mut">做成一根根 K 線。</span></h2>
+      <a class="more dark-more" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener">到 IG 看完整版<span>›</span></a>
+    </div>
+  </div>
+  <div class="fwall">
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/taiex60.jpg" data-src="img/films/taiex60.mp4"></video><b>台股 60 年</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/btc.jpg" data-src="img/films/btc.mp4"></video><b>比特幣</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/tw400.jpg" data-src="img/films/tw400.mp4"></video><b>台灣 400 年</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/rallies.jpg" data-src="img/films/rallies.mp4"></video><b>台股最強 7 次上漲</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/musk.jpg" data-src="img/films/musk.mp4"></video><b>如果馬斯克是一檔股票</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/gold.jpg" data-src="img/films/gold.mp4"></video><b>黃金</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/swan.jpg" data-src="img/films/swan.mp4"></video><b>台股 5 大黑天鵝</b></a>
+    <a class="film" href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener"><video muted loop playsinline preload="none" poster="img/films/apple.jpg" data-src="img/films/apple.mp4"></video><b>蘋果的人生 K 線圖</b></a>
+  </div>
+</section>
+
+<!-- 十、創辦人＋老師 -->
 <section class="team light" id="team" data-theme="light">
   <div class="wrap">
+    <div class="sec-head" data-rv>
+      <p class="eyebrow">團隊</p>
+      <h2>創辦人和老師</h2>
+    </div>
     <div class="founder" data-rv>
       <canvas class="avatar" id="avatar" width="320" height="320" aria-label="易中生Snsheng 的頭像"></canvas>
       <div class="founder-txt">
-        <p class="eyebrow">創辦人</p>
-        <h2>易中生Snsheng</h2>
+        <p class="t-by">創辦人</p>
+        <h3>易中生Snsheng</h3>
         <p class="founder-sub">雙極交易法</p>
-        <blockquote>選擇不做什麼，比做什麼重要。</blockquote>
+        <p class="t-quote">雙極指買方和賣方兩極的分歧。</p>
+        <p class="t-quote">上漲時，頂分型形成頂。頂被突破，就是創出新結構。</p>
+        <a class="more dark-more" href="https://reurl.cc/VnV81R" target="_blank" rel="noopener">看他的內容<span>›</span></a>
       </div>
     </div>
-    <p class="eyebrow team-label" data-rv>老師</p>
     <div class="tgrid">
-      <a class="tcard" data-rv href="https://reurl.cc/p8l6v4" target="_blank" rel="noopener" style="--c:#ff3b2e"><img src="img/av/sheng.png" alt="" loading="lazy"><b>阿聖聊交易</b><span>加密貨幣技術分析</span></a>
-      <a class="tcard" data-rv href="https://reurl.cc/jVzDyL" target="_blank" rel="noopener" style="--c:#35e0c2;--d:.06s"><img src="img/av/chameleon.png" alt="" loading="lazy"><b>交易變色龍</b><span>Kampbell Cheng</span></a>
-      <a class="tcard" data-rv href="https://reurl.cc/beQ936" target="_blank" rel="noopener" style="--c:#c99bff;--d:.12s"><img src="img/av/lucas.png" alt="" loading="lazy"><b>Lucas</b><span>Crypto_Lucas</span></a>
-      <a class="tcard" data-rv href="https://reurl.cc/6Xo5d6" target="_blank" rel="noopener" style="--c:#b9bec6;--d:.18s"><img src="img/av/cheng.png" alt="" loading="lazy"><b>老承</b><span>台股解盤與產業分析</span></a>
+      <a class="tcard" data-rv href="https://reurl.cc/p8l6v4" target="_blank" rel="noopener" style="--c:#ff3b2e"><span class="tc-img"><img src="img/cover/sheng.jpg" alt="" loading="lazy"></span><b>阿聖聊交易</b><span>加密貨幣技術分析</span></a>
+      <a class="tcard" data-rv href="https://reurl.cc/jVzDyL" target="_blank" rel="noopener" style="--c:#35e0c2;--d:.06s"><span class="tc-img cut"><img src="img/av/chameleon_cutout.png" alt="" loading="lazy"></span><b>交易變色龍</b><span>Kampbell Cheng</span></a>
+      <a class="tcard" data-rv href="https://reurl.cc/beQ936" target="_blank" rel="noopener" style="--c:#c99bff;--d:.12s"><span class="tc-img"><img src="img/cover/lucas.jpg" alt="" loading="lazy"></span><b>Lucas</b><span>Crypto_Lucas</span></a>
+      <a class="tcard" data-rv href="https://reurl.cc/6Xo5d6" target="_blank" rel="noopener" style="--c:#b9bec6;--d:.18s"><span class="tc-img"><img src="img/cover/cheng.jpg" alt="" loading="lazy"></span><b>老承</b><span>台股解盤與產業分析</span></a>
     </div>
   </div>
 </section>
 
-<!-- 七、黑卡會員＋社群：卡片跟著滑動轉正 -->
+<!-- 十一、黑卡會員：卡片跟著滑動轉正 -->
 <section class="member light" id="member" data-theme="light">
   <div class="member-stage">
     <div class="member-head">
@@ -166,17 +250,58 @@
     <div class="member-body">
       <ul class="perks"><li>進階教材</li><li>OX 加密進階功能</li></ul>
       <a class="btn-gold" href="../preview-7k3q/">加入會員</a>
-      <div class="line-row">
-        <a href="https://lin.ee/pSdJA49" target="_blank" rel="noopener"><b>LINE 官方</b><span>加好友領免費教材</span></a>
-        <a href="https://line.me/ti/g2/FXj0yahd04U4JecSoC4uPInXiqhLulqdCl54Ag?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener"><b>LINE 社群</b><span>進來一起聊盤</span></a>
-      </div>
+    </div>
+  </div>
+</section>
+<section class="steps light" data-theme="light">
+  <div class="wrap">
+    <div class="sgrid">
+      <div class="step" data-rv><b>1</b><h3>用老師的連結註冊</h3><p>Bitget 或 BingX，用你看的那位老師的連結開新帳號。</p></div>
+      <div class="step" data-rv style="--d:.08s"><b>2</b><h3>完成 KYC</h3><p>在交易所完成身分認證。</p></div>
+      <div class="step" data-rv style="--d:.16s"><b>3</b><h3>淨入金滿 100 USDT</h3><p>入金減掉出金，要有 100 以上。</p></div>
+    </div>
+    <div class="line-row" data-rv>
+      <a href="https://lin.ee/pSdJA49" target="_blank" rel="noopener"><b>LINE 官方</b><span>加好友領免費教材</span></a>
+      <a href="https://line.me/ti/g2/FXj0yahd04U4JecSoC4uPInXiqhLulqdCl54Ag?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener"><b>LINE 社群</b><span>進來一起聊盤</span></a>
     </div>
   </div>
 </section>
 
-<footer class="foot light" data-theme="light">
+<!-- 十二、常見問題 -->
+<section class="faq light" id="faq" data-theme="light">
+  <div class="wrap faq-wrap">
+    <div class="sec-head" data-rv><p class="eyebrow">常見問題</p><h2>常見問題</h2></div>
+    <div class="qa">
+      <details><summary>OX 台股、OX 加密怎麼用？</summary><p>點上面的按鈕，用瀏覽器打開就好，手機電腦都可以。</p></details>
+      <details><summary>怎麼成為 OX 會員？</summary><p>用老師的連結註冊 Bitget 或 BingX、完成 KYC、淨入金滿 100 USDT，再到會員頁填 UID。</p></details>
+      <details><summary>會員拿得到什麼？</summary><p>進階教材和 OX 加密進階功能。</p></details>
+      <details><summary>多久會收到教材？</summary><p>我們到交易所後台核對，審核完 24 小時內用 LINE 把進階教材傳給你。</p></details>
+      <details><summary>我已經有交易所帳號了</summary><p>先不要自己再開一個。兩家交易所都規定一個人只能有一個帳號，同一張證件也只能認證一次，重開會卡在身分認證。先到 LINE 官方跟我們說是哪一家、舊帳號有沒有入過金，我們再告訴你怎麼做。</p></details>
+      <details><summary>淨入金怎麼算？</summary><p>入金減掉出金，滿 100 USDT。</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 十三、收尾＋大頁尾 -->
+<section class="outro dark" data-theme="dark">
   <div class="wrap">
-    <p class="foot-brand">OX Trading</p>
+    <p class="outro-brand" data-rv>OX Trading</p>
+    <div class="hero-btns center" data-rv style="--d:.1s">
+      <a class="btn-white" href="../preview-7k3q/">加入會員</a>
+      <a class="btn-glass" href="https://lin.ee/pSdJA49" target="_blank" rel="noopener">LINE 領免費教材</a>
+    </div>
+  </div>
+</section>
+<footer class="foot dark" data-theme="dark">
+  <div class="wrap">
+    <div class="fcols">
+      <div class="fbrand"><img src="img/logo.png" alt=""><b>OX Trading</b></div>
+      <div><p>工具</p><a href="https://oxpattern.com" target="_blank" rel="noopener">OX 台股</a><a href="https://ox-crypto-independent.vercel.app" target="_blank" rel="noopener">OX 加密</a><span>交易總覽（製作中）</span><span>模擬交易所（製作中）</span></div>
+      <div><p>交易法</p><a href="#methods">雙極交易法</a><a href="#methods">ICT／SMC</a><a href="#methods">SNR 支撐壓力</a><a href="#methods">裸 K／型態</a></div>
+      <div><p>團隊</p><a href="https://reurl.cc/VnV81R" target="_blank" rel="noopener">易中生Snsheng</a><a href="https://reurl.cc/p8l6v4" target="_blank" rel="noopener">阿聖聊交易</a><a href="https://reurl.cc/jVzDyL" target="_blank" rel="noopener">交易變色龍</a><a href="https://reurl.cc/beQ936" target="_blank" rel="noopener">Lucas</a><a href="https://reurl.cc/6Xo5d6" target="_blank" rel="noopener">老承</a></div>
+      <div><p>社群</p><a href="https://lin.ee/pSdJA49" target="_blank" rel="noopener">LINE 官方</a><a href="https://line.me/ti/g2/FXj0yahd04U4JecSoC4uPInXiqhLulqdCl54Ag?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener">LINE 社群</a><a href="https://www.instagram.com/btcfly/" target="_blank" rel="noopener">Instagram</a></div>
+      <div><p>會員</p><a href="../preview-7k3q/">加入會員</a><a href="#faq">常見問題</a></div>
+    </div>
     <p class="risk">加密貨幣合約風險高，可能損失全部本金。本站內容為個人經驗分享，不構成投資建議，請自行評估，盈虧自負。</p>
     <p class="copy">© 2026 OX Trading</p>
   </div>

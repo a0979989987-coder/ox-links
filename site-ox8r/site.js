@@ -83,7 +83,8 @@
   if ("IntersectionObserver" in window) new IntersectionObserver(es => { avSeen = es[0].isIntersecting; }).observe(av); else avSeen = true;
 
   // ---------- 每一格 ----------
-  const tools = $$(".tool"), build = $("#build"), bsteps = $$(".bstep"), bimgs = $$(".build-phone img"), bdots = $$(".build-dots i");
+  const tools = $$("[data-tilt]"), build = $("#build"), bsteps = $$(".blist li"), bimgs = $$(".build-phone img"), bbar = $(".build-bar");
+  const say = $("#say"), sayChars = [];
   const dawn = $("#dawn"), dstage = $(".dawn-stage"), member = $("#member"), mstage = $(".member-stage"), crot = $(".card-rot"), card = $(".oh-card");
   const sections = $$("[data-theme]"), links = $$(".nav-links a");
   let bi = -1, last = 0;
@@ -91,7 +92,7 @@
     requestAnimationFrame(tick);
     const t = now / 1000;
     // 上方列：沒有 WebGL 的時候照位置判斷有沒有滑過黑洞
-    if (!window.OXBH) document.documentElement.classList.toggle("past-hero", scrollY > vh() * 1.5);
+    nav.classList.toggle("solid", scrollY > 24);
     // 上方列換黑白、目前段落
     let theme = "dark", cur = null;
     for (const s of sections) { const r = s.getBoundingClientRect(); if (r.top <= 64 && r.bottom > 64) { theme = s.dataset.theme; cur = s.id; } }
@@ -99,12 +100,16 @@
     nav.classList.toggle("is-light", theme === "light");
     links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + (cur === "build" ? "build" : cur)));
 
-    // 工具：手機從往後倒慢慢立起來
-    tools.forEach(el => { const r = el.getBoundingClientRect(), q = clamp((vh() - r.top) / (vh() * .7), 0, 1); el.style.setProperty("--tilt", (1 - ease(q)).toFixed(3)); });
+    // 產品畫面：從往後倒慢慢立起來（Linear 首屏那種）
+    tools.forEach(el => { const r = el.getBoundingClientRect(); if (r.top > vh() * 1.2 || r.bottom < -200) return; const q = clamp((vh() - r.top) / (vh() * .75), 0, 1); el.style.setProperty("--tilt", (1 - ease(q)).toFixed(3)); });
+
+    // 原話：滑過去一個字一個字亮起來
+    { const r = say.getBoundingClientRect(); if (r.bottom > 0 && r.top < vh()) { const q = clamp((vh() - r.top) / r.height, 0, 1), p = clamp(q * 1.3 - .12, 0, 1), n = Math.round(p * sayChars.length); sayChars.forEach((c, k) => c.classList.toggle("lit", k < n)); } }
 
     // 製作中：手機釘住，往下滑換畫面
     { const p = span(build), n = bsteps.length, i = clamp(Math.floor(p * n * .999), 0, n - 1);
-      if (i !== bi) { bi = i; bsteps.forEach((e, k) => e.classList.toggle("on", k === i)); bimgs.forEach((e, k) => e.classList.toggle("on", k === i)); bdots.forEach((e, k) => e.classList.toggle("on", k === i)); } }
+      bbar.style.setProperty("--bp", p.toFixed(3));
+      if (i !== bi) { bi = i; bsteps.forEach((e, k) => e.classList.toggle("on", k === i)); bimgs.forEach((e, k) => e.classList.toggle("on", k === i)); } }
 
     // 轉白金：底色從黑變暖白，波浪升上來，標題出現
     { const r = dawn.getBoundingClientRect();
@@ -115,7 +120,7 @@
         const m = lk < .5 ? lk * 2 : (lk - .5) * 2, A = lk < .5 ? [3, 4, 9] : [92, 72, 38], B = lk < .5 ? [92, 72, 38] : [246, 243, 236];
         const c = [0, 1, 2].map(i => Math.round(lerp(A[i], B[i], lk < .5 ? m * m : Math.sqrt(m)))).join(",");
         dstage.style.setProperty("--dawn-bg", c);
-        dstage.style.setProperty("--dawn-t", smooth((p - .5) / .25).toFixed(3));
+        dstage.style.setProperty("--dawn-t", smooth((p - .3) / .2).toFixed(3));
         if (!wW) sizeWave();
         drawWave(reduce ? 2 : t, clamp(enter * .55 + p * .45, 0, 1), lk);
       } }
@@ -129,6 +134,32 @@
       card.style.setProperty("--tx", tx.toFixed(3)); card.style.setProperty("--ty", ty.toFixed(3)); }
 
     if (avSeen && (now - last > 33 || reduce)) { last = now; drawAv(reduce ? 1 : t); }
+  }
+  // 原話拆成一個個字
+  $$("[data-light]").forEach(el => {
+    const split = node => { Array.from(node.childNodes).forEach(n => {
+      if (n.nodeType === 3) { const f = document.createDocumentFragment(); for (const ch of n.textContent) { const sp = document.createElement("span"); sp.className = "ch"; sp.textContent = ch; f.appendChild(sp); sayChars.push(sp); } node.replaceChild(f, n); }
+      else split(n); }); };
+    split(el);
+    if (reduce) sayChars.forEach(c => c.classList.add("lit"));
+  });
+  // 數字：進畫面時從 0 數上去
+  if ("IntersectionObserver" in window && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return; io.unobserve(e.target);
+      const el = e.target, to = +el.dataset.count, suf = el.dataset.suffix || "", t0 = performance.now();
+      const step = now => { const k = ease((now - t0) / 1400); el.textContent = Math.round(to * k).toLocaleString("en-US") + suf; if (k < 1) requestAnimationFrame(step); };
+      requestAnimationFrame(step);
+    }), { threshold: .6 });
+    $$("[data-count]").forEach(el => { el.textContent = "0" + (el.dataset.suffix || ""); io.observe(el); });
+  }
+  // 影片牆：進畫面才載入、才播放，離開就停
+  if ("IntersectionObserver" in window) {
+    const vio = new IntersectionObserver(es => es.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting) { if (!v.getAttribute("src")) v.src = v.dataset.src; if (!reduce) v.play().catch(() => {}); } else v.pause();
+    }), { threshold: .25 });
+    $$(".film video").forEach(v => vio.observe(v));
   }
   addEventListener("resize", () => { sizeWave(); sizeAv(); });
   sizeAv(); face.onload = () => drawAv(0);
