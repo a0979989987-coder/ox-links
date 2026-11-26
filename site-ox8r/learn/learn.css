@@ -16,7 +16,8 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 
 /* 上方列 */
 .lnav { position: sticky; top: 0; z-index: 20; height: 52px; padding: 0 var(--gut); display: flex; align-items: center; gap: 12px; background: rgba(251, 251, 253, .94); box-shadow: 0 1px 0 var(--line); }
-.lnav .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+.lnav .brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; white-space: nowrap; flex: none; }
+.lnav .prog, .lnav .btn { white-space: nowrap; flex: none; }
 .lnav .brand small { font-weight: 400; color: var(--mut); margin-left: 2px; }
 .lnav .sp { flex: 1; }
 .lnav .prog { font-size: 13px; color: var(--mut); }
@@ -120,6 +121,7 @@ figcaption { margin-top: 10px; font-size: 13px; color: var(--mut); line-height: 
   .lnav .brand small { display: none; }
   .lnav .prog { font-size: 12px; }
 }
+@media (max-width: 359px) { .lnav .prog { display: none; } }
 @media (min-width: 860px) {
   :root { --gut: 40px; }
   .rowx { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 16px 0 0; padding: 0; overflow: visible; }
