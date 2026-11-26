@@ -35,7 +35,10 @@
       h += `</div></div>`;
     }
     h += `</section><section class="sec" id="exchange"><h2>${t[2].title}</h2><p>${t[2].sub}</p><div class="exg">`;
-    for (const l of LESSONS.filter(x => x.track === "ex")) h += `<div class="exc"><b>${esc(l.ex)}</b><ul>${l.sum.split("、").map(s => `<li>${esc(s)}</li>`).join("")}</ul><span class="tag">準備中</span></div>`;
+    for (const l of LESSONS.filter(x => x.track === "ex")) {
+      const d = done.has(l.id), inner = `<b>${esc(l.ex)}</b><ul>${l.sum.split("、").map(s => `<li>${esc(s)}</li>`).join("")}</ul><span class="tag${l.soon ? "" : " on"}">${l.soon ? "準備中" : d ? "已完成" : "約 " + l.mins + " 分鐘"}</span>`;
+      h += l.soon ? `<div class="exc">${inner}</div>` : `<a class="exc go${d ? " done" : ""}" href="lesson.html?id=${l.id}">${inner}</a>`;
+    }
     h += `</div></section>`;
     home.innerHTML = h;
     // 教一把卡片上的小圖：15 分鐘那段＋1／2／3
@@ -48,7 +51,7 @@
     const l = LESSONS.find(x => x.id === q.get("id")) || real[0];
     document.title = `${l.title}｜OX 新手學院`;
     const tr = TRACKS.find(t => t.id === l.track), cat = tr.cats && tr.cats.find(c => c.id === l.cat);
-    let h = `<p class="crumb"><a href="./">新手學院</a>　›　<a href="./#${l.track === "one" ? "one" : "cat-" + l.cat}">${cat ? cat.title : tr.title}</a></p>
+    let h = `<p class="crumb"><a href="./">新手學院</a>　›　<a href="./#${l.track === "one" ? "one" : l.track === "ex" ? "exchange" : "cat-" + l.cat}">${cat ? cat.title : tr.title}</a></p>
       <h1>${esc(l.title)}</h1><p class="lmeta">約 ${l.mins} 分鐘</p>`;
     const steps = (l.blocks || []).filter(b => b.t === "step");
     if (steps.length) h += `<nav class="stepbar" aria-label="步驟">${steps.map(s => `<a href="#s${s.n}">${s.n}　${esc(s.title)}</a>`).join("")}</nav>`;
@@ -58,7 +61,7 @@
       h += block(b);
     }
     if (open) h += `</section>`;
-    const list = LESSONS.filter(x => !x.soon && x.track !== "ex"), i = list.indexOf(l), pv = list[i - 1], nx = list[i + 1];
+    const list = LESSONS.filter(x => !x.soon && (x.track === "ex") === (l.track === "ex")), i = list.indexOf(l), pv = list[i - 1], nx = list[i + 1];
     h += `<div class="done-row"><span>${done.has(l.id) ? "這一課已經完成。" : "看完了嗎？"}</span><button class="btn${done.has(l.id) ? " done" : ""}" id="mark">${done.has(l.id) ? "已完成" : "完成這一課"}</button></div>
       <div class="pn">${pv ? `<a href="lesson.html?id=${pv.id}"><small>上一課</small>${esc(pv.title)}</a>` : "<span></span>"}${nx ? `<a class="nx" href="lesson.html?id=${nx.id}"><small>下一課</small>${esc(nx.title)}</a>` : `<a class="nx" href="./"><small>回到</small>新手學院</a>`}</div>`;
     box.innerHTML = h;
@@ -99,7 +102,9 @@
       case "anim": return `<figure><canvas data-anim="${b.a}" style="height:${innerWidth < 700 ? 210 : 260}px;border-radius:12px;background:#fbfaf6"></canvas><figcaption>${esc(b.cap || "")}</figcaption></figure>`;
       case "calc": return `<div class="calc" data-entry="${b.entry}" data-stop="${b.stop}"><div class="g"><label>願意虧的錢（USDT）<input type="number" inputmode="decimal" id="c-r" value="${b.risk}"></label><label>進場價<input type="number" inputmode="decimal" id="c-e" value="${b.entry}"></label><label>止損價<input type="number" inputmode="decimal" id="c-s" value="${b.stop}"></label></div><div class="out"><span>數量</span><b id="c-q">0</b><span id="c-n"></span></div></div>`;
       case "results": return `<div class="res" id="res"></div>`;
-      case "link": return `<p><a class="lnk" href="${b.href}">${esc(b.h)}${CHEV}</a></p>`;
+      case "link": return `<p><a class="lnk" href="${b.href}"${/^https?:/.test(b.href) ? ' target="_blank" rel="noopener"' : ""}>${esc(b.h)}${CHEV}</a></p>`;
+      // 交易所操作：手機畫面截圖（模擬交易所的畫面）
+      case "shot": return `<figure class="shot"><img src="img/ex/${b.img}.webp" alt="${esc(b.alt || b.cap || "")}" width="640" height="1391" loading="lazy" decoding="async"><figcaption>${esc(b.cap || "")}</figcaption></figure>`;
     }
     return "";
   }
