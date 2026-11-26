@@ -110,7 +110,7 @@
       T: 9,
       cases: [{ k: [50, 68, 48, 57], box: 0 }, { k: [52, 58, 45, 49], box: 1 }, { k: [50, 53, 31, 36], box: 2 }],
       draw(g, t, W, H) {
-        const seg = 3, ci = Math.min(2, Math.floor(t / seg)), lt = t - ci * seg, c = this.cases[ci], prev = [44, 62, 40, 56];
+        const seg = 3, ci = Math.max(0, Math.min(2, Math.floor(t / seg))), lt = Math.max(0, t - ci * seg), c = this.cases[ci], prev = [44, 62, 40, 56];
         const cx = W * .3, slot = Math.min(46, W * .12), Y = p => H * .52 - (p - 50) / 40 * (H * .7), bw = slot * .62;
         const names = ["多方贏", "平衡", "空方贏"], bx = W * .56, bwid = W - bx - 16, bh = (H - 44) / 3;
         dash(g, cx - slot * 1.4, Y(62), cx + slot * 1.9, Y(62), RED, 1.2); dash(g, cx - slot * 1.4, Y(40), cx + slot * 1.9, Y(40), RED, 1.2);

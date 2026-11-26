@@ -190,3 +190,6 @@ function runIntro() {
   if (skip) skip.addEventListener("click", () => { if (intro) intro.skip = true; });
 }
 runIntro();
+// 沒有開場的時候（回訪、?nointro），金屬 logo 要到最後一段才第一次畫，著色器那時才編譯會頓一下：開頁後閒的時候先偷畫一張
+function prewarm() { if (intro || shown) return; W.logo.update({ mode: "outro", p: .6, time: 0 }); camera.updateProjectionMatrix(); renderer.render(W.logo.scene, camera); }
+setTimeout(() => { if ("requestIdleCallback" in window) requestIdleCallback(prewarm, { timeout: 2500 }); else prewarm(); }, 1800);
