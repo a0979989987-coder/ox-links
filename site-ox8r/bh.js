@@ -206,15 +206,15 @@ void main(){
   }
 
   // 滑動進度：.hero 外層很長、裡面的 .hero-stage 釘住
-  function progress() { const r = stage.getBoundingClientRect(), span = r.height - innerHeight; return clamp(-r.top / Math.max(1, span), 0, 1); }
+  // 位置用全站循環存好的（不每格量畫面）
+  function progress() { const r = window.OX ? OX.rect(stage) : stage.getBoundingClientRect(), span = r.height - innerHeight; return clamp(-r.top / Math.max(1, span), 0, 1); }
   const word = document.querySelector(".hero-copy"), hint = document.querySelector(".hero-hint"), veil = document.querySelector(".hero-veil");
-  let visible = true, t0 = performance.now(), slow = 0, frames = 0;
-  if ("IntersectionObserver" in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) kick(); }, { rootMargin: "100px" }).observe(stage);
-  let raf = 0;
-  function kick() { if (!raf) raf = requestAnimationFrame(frame); }
+  let t0 = performance.now(), slow = 0, frames = 0, lastStyle = "";
+  const root = document.documentElement;
   function frame(now) {
-    raf = 0;
-    if (!visible || document.hidden) return;
+    const r = OX.rect(stage);
+    if (r.bottom < -50 || r.top > innerHeight + 50) return;                         // 黑洞不在畫面上就不畫
+    if (root.classList.contains("intro") && !root.classList.contains("intro-out")) return;   // 開場蓋著的時候不畫
     if (!W) size();
     const t = reduce ? 8 : (now - t0) / 1000;
     prog01 += (progress() - prog01) * (reduce ? 1 : .18);
@@ -227,23 +227,22 @@ void main(){
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
     drawDust(c, t, p);
-    // 左邊的字：往下滑往上飄、變淡、微微模糊
-    const wf = smooth(p / .14);
-    word.style.opacity = (1 - wf).toFixed(3);
-    word.style.transform = `translateY(${(-wf * 60).toFixed(1)}px)`;
-    word.style.filter = wf > .01 ? `blur(${(wf * 6).toFixed(2)}px)` : "none";
-    word.style.pointerEvents = wf > .5 ? "none" : "";
-    hint.style.opacity = (1 - smooth(p / .05)).toFixed(3);
-    veil.style.opacity = smooth((p - .94) / .055).toFixed(3);
-    document.documentElement.classList.toggle("past-hero", p > .97);
+    // 左邊的字：往下滑往上飄、變淡（只動透明度和位移，不用模糊，手機才順）；值沒變就不寫
+    const wf = smooth(p / .14), st = wf.toFixed(3) + "|" + smooth(p / .05).toFixed(2) + "|" + smooth((p - .94) / .055).toFixed(3);
+    if (st !== lastStyle) {
+      lastStyle = st;
+      word.style.opacity = (1 - wf).toFixed(3);
+      word.style.setProperty("--hy", (-wf * 60).toFixed(1) + "px");
+      word.style.pointerEvents = wf > .5 ? "none" : "";
+      hint.style.opacity = (1 - smooth(p / .05)).toFixed(3);
+      veil.style.opacity = smooth((p - .94) / .055).toFixed(3);
+    }
     // 太慢就少走幾步（只降步數，不改畫布大小）
     if (!reduce && frames++ > 20) { const dtm = now - (frame.last || now); if (dtm > 30) slow++; else slow = Math.max(0, slow - 1); if (slow > 25 && steps > 90) { steps -= 25; slow = 0; } }
     frame.last = now;
-    if (!reduce) kick(); else if (visible) setTimeout(kick, 120);
   }
-  addEventListener("resize", () => { size(); kick(); });
-  addEventListener("scroll", kick, { passive: true });
-  document.addEventListener("visibilitychange", kick);
-  size(); kick();
+  addEventListener("resize", () => size());
+  size();
+  OX.add((S, now) => frame(now));
   window.OXBH = { camAt, progress };
 })();

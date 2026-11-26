@@ -1,6 +1,6 @@
 /* OX 官網 v3 的轉場：一張蓋在最上面的 2D 畫布，滑到兩段之間的轉場區就畫那一種轉場；
-   進度 0～0.5 蓋起來、0.5 換世界、0.5～1 打開。八種轉場都不一樣：
-   halves logo 兩半合上分開／hex 六角傳送門／warp 光速跳躍／dawn 天亮／film 底片拉近／spot 燈暗聚光燈／iris 六角金庫門／flip 卡片翻面拉遠。
+   進度 0～0.5 蓋起來、0.5 換世界、0.5～1 打開。九種轉場都不一樣：
+   halves logo 兩半合上分開／hex 六角傳送門／warp 光速跳躍／dawn 天亮／path 光路／film 底片拉近／spot 燈暗聚光燈／iris 六角金庫門／flip 卡片翻面拉遠。
    另外管聲音：預設靜音，按右上聲音鍵才有空間配樂和穿越音效（全部用 WebAudio 即時合成，沒有音檔）。 */
 (function () {
   "use strict";
@@ -10,7 +10,8 @@
   const ease = t => 1 - Math.pow(1 - clamp(t, 0, 1), 3), easeIn = t => Math.pow(clamp(t, 0, 1), 3);
   const smooth = t => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
   let W = 0, H = 0, D = 1;
-  function size() { D = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = Math.round(W * D); cv.height = Math.round(H * D); g.setTransform(D, 0, 0, D, 0, 0); }
+  const mobile = matchMedia("(pointer: coarse)").matches;
+  function size() { D = Math.min(devicePixelRatio || 1, mobile ? 1.5 : 2); W = innerWidth; H = innerHeight; cv.width = Math.round(W * D); cv.height = Math.round(H * D); g.setTransform(D, 0, 0, D, 0, 0); }
   addEventListener("resize", size); size();
 
   const LD = new Path2D("M534 16L503 8L476 8L461 11L434 22L93 221L78 232L64 246L57 255L45 277L38 301L36 332L36 663L41 693L53 719L74 745L93 759L180 812L190 812L196 809L202 802L207 788L207 557L211 532L216 515L232 481L251 454L272 431L326 378L361 353L394 337L432 326L468 322L501 324L524 329L545 337L564 347L582 360L619 397L634 405L647 408L668 407L690 398L703 388L711 379L722 359L727 335L727 187L724 163L715 140L701 120L687 107L584 44Z");
@@ -130,6 +131,20 @@
       g.lineWidth = 3; g.strokeStyle = "#d6b465"; g.shadowColor = "#ffd88a"; g.shadowBlur = 18; g.stroke(inner);
       g.restore();
     },
+    // 光路：亮天空慢慢暗成夜色，一道金色的光沿著 S 形畫過畫面；過一半光線散成一顆顆光點淡掉，露出學院的光路
+    path(q, t) {
+      const k = q < .5 ? smooth(q / .5) : 1, out = q < .5 ? 1 : 1 - smooth((q - .5) / .45);
+      g.save(); g.globalAlpha = out * k; g.fillStyle = "#05081c"; g.fillRect(0, 0, W, H); g.restore();
+      const pts = [], n = 90;
+      for (let i = 0; i <= n; i++) { const u = i / n; pts.push([W * (-.05 + u * 1.1), H * (.78 - u * .56 + Math.sin(u * Math.PI * 2) * .08)]); }
+      const draw = q < .5 ? ease(q / .5) : 1, m = Math.max(1, Math.round(n * draw));
+      g.save(); g.globalAlpha = out; g.lineCap = "round"; g.lineJoin = "round";
+      g.strokeStyle = "rgba(255,214,150,.35)"; g.lineWidth = 14; g.shadowColor = "rgba(255,200,120,.8)"; g.shadowBlur = 30;
+      g.beginPath(); pts.slice(0, m + 1).forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); g.stroke();
+      g.shadowBlur = 0; g.strokeStyle = "#fff1d0"; g.lineWidth = 2.2; g.stroke();
+      if (q > .5) { const s = (q - .5) / .5; g.fillStyle = "#ffe2b0"; for (let i = 0; i < n; i += 2) { const [x, y] = pts[i], j = Math.sin(i * 12.9898) * 43758.5453 % 1; g.globalAlpha = out * (1 - s) * .9; g.beginPath(); g.arc(x + j * 30 * s, y - Math.abs(j) * 60 * s, 1.6, 0, Math.PI * 2); g.fill(); } }
+      g.restore();
+    },
     // 卡片翻面拉遠：一道金色細線從中間往兩邊拉開（像卡片轉成側面），畫面暗下來再亮回收尾
     flip(q) {
       const k = 1 - Math.abs(q - .5) * 2, cx = W / 2, cy = H / 2;
@@ -177,20 +192,26 @@
   addEventListener("oxintrodone", () => { });
 
   // ---------- 每一格 ----------
+  // 只在轉場區裡才畫；沒有轉場時整張畫布藏起來、一格都不畫（之前沒在用也每格清全螢幕，手機會卡）
   const zones = Array.from(document.querySelectorAll("[data-tx]")), lastQ = new Map();
+  zones.forEach(el => OX.track(el));
   const t0 = performance.now();
-  function frame(now) {
-    requestAnimationFrame(frame);
+  let showing = false;
+  OX.add((S, now) => {
+    if (H !== S.vh || W !== S.vw) size();
     const t = (now - t0) / 1000;
-    g.clearRect(0, 0, W, H);
+    let active = null, aq = 0;
     for (const el of zones) {
-      const r = el.getBoundingClientRect(); if (r.bottom < 0 || r.top > H) { lastQ.delete(el); continue; }
+      const r = OX.rect(el); if (r.bottom < 0 || r.top > H) { lastQ.delete(el); continue; }
       const q = clamp((H / 2 - r.top) / r.height, 0, 1), kind = el.dataset.tx;
       const pq = lastQ.get(el); if (pq != null && (pq - .5) * (q - .5) < 0) whoosh(kind); lastQ.set(el, q);
-      if (q <= 0 || q >= 1) continue;
-      if (reduce) { const k = 1 - Math.abs(q - .5) * 2; g.fillStyle = `rgba(3,4,9,${k})`; g.fillRect(0, 0, W, H); continue; }
-      (T[kind] || T.flip)(q, t);
+      if (q > 0 && q < 1) { active = el; aq = q; }
     }
-  }
-  requestAnimationFrame(frame);
+    if (!active) { if (showing) { g.clearRect(0, 0, W, H); cv.style.display = "none"; showing = false; } return; }
+    if (!showing) { cv.style.display = "block"; showing = true; }
+    g.clearRect(0, 0, W, H);
+    if (reduce) { const k = 1 - Math.abs(aq - .5) * 2; g.fillStyle = `rgba(3,4,9,${k})`; g.fillRect(0, 0, W, H); return; }
+    (T[active.dataset.tx] || T.flip)(aq, t);
+  });
+  cv.style.display = "none";
 })();
