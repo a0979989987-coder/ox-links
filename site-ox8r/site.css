@@ -412,3 +412,31 @@ html[data-cur="city"] .nav.solid, html[data-cur="islands"] .nav.solid { backgrou
   .say-text { font-size: clamp(34px, 3.6vw, 56px); }
   .w.build .blist li { padding: 12px 0; }
 }
+
+/* OX 圖表（主角段） */
+.charts { position: relative; z-index: 2; padding: 110px 0 120px; background: #000; color: var(--ink-d); overflow: hidden; }
+.charts::before { content: ""; position: absolute; left: 50%; top: 38%; width: 1200px; height: 700px; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(35, 166, 234, .16), transparent); pointer-events: none; }
+.ch-head h2 { font-size: clamp(44px, 12vw, 96px); line-height: 1.02; letter-spacing: -.01em; }
+.ch-head .lede { margin: 18px 0 0; max-width: 30em; font-size: clamp(17px, 4.2vw, 21px); line-height: 1.5; color: var(--mut-d); }
+.ch-head .lede b { color: var(--ink-d); font-weight: 600; }
+.ch-show { position: relative; display: block; margin: 54px 0 0; padding-bottom: 8%; }
+.ch-desk { display: block; border-radius: 14px; overflow: hidden; background: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 80px rgba(0, 0, 0, .6), 0 0 120px rgba(35, 166, 234, .18); }
+.ch-bar { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; background: #1b1d22; }
+.ch-bar i { width: 9px; height: 9px; border-radius: 50%; background: #3a3d44; }
+.ch-bar em { flex: 1; margin-right: 40px; text-align: center; font: 400 12px/1 var(--mono); font-style: normal; color: #8b8f98; }
+.ch-desk img { display: block; width: 100%; height: auto; }
+.ch-phone { position: absolute; right: -2%; bottom: 0; width: 26%; max-width: 230px; border-radius: 22px; overflow: hidden; background: #fff; border: 5px solid #111317; box-shadow: 0 24px 60px rgba(0, 0, 0, .65); }
+.ch-phone img { display: block; width: 100%; height: auto; }
+.ch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 36px; }
+.ch-grid div { padding: 18px 16px; border-radius: 16px; background: rgba(255, 255, 255, .05); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.ch-grid b { display: block; font-size: 17px; font-weight: 600; color: var(--ink-d); }
+.ch-grid span { display: block; margin-top: 6px; font-size: 13px; line-height: 1.45; color: var(--mut-d); }
+@media (min-width: 860px) {
+  .charts { padding: 160px 0 170px; }
+  .ch-show { margin-top: 70px; }
+  .ch-phone { right: -3%; width: 20%; border-radius: 30px; border-width: 7px; }
+  .ch-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 56px; }
+  .ch-grid div { padding: 24px 22px; }
+  .ch-grid b { font-size: 20px; } .ch-grid span { font-size: 15px; }
+}
+.charts + .w.say { margin-top: 0; }   /* 天秤原本往上疊在黑洞尾巴，中間插了 OX 圖表就不疊 */
